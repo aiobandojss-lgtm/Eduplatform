@@ -30,10 +30,10 @@
 
 ## 4. Gestión de cursos por el instructor (course-authoring)
 
-- [ ] 4.1 Migración: políticas INSERT, UPDATE y DELETE de `courses` (solo instructor, solo dueño) y trigger de `updated_at`; verificar con pgTAP que un estudiante no puede insertar y que un instructor no puede modificar un curso ajeno
-- [ ] 4.2 Migración: políticas de escritura de `lessons` y `lesson_contents` solo para el dueño, `CHECK` de URL de YouTube o Vimeo, y triggers que actualizan `courses.updated_at`; verificar con pgTAP la escritura ajena rechazada y una URL inválida rechazada
-- [ ] 4.3 Migración: trigger que impide publicar sin lecciones y trigger que impide borrar la última lección de un curso publicado (D7); verificar con pgTAP ambos rechazos y una publicación válida que registra `published_at`
-- [ ] 4.4 Migración: RPC `reorder_lessons(course_id, lesson_ids[])` atómica que respeta RLS; verificar con pgTAP que las posiciones quedan sin repetir y que un usuario ajeno no puede reordenar
+- [x] 4.1 Migración: políticas INSERT, UPDATE y DELETE de `courses` (solo instructor, solo dueño) y trigger de `updated_at`; verificar con pgTAP que un estudiante no puede insertar y que un instructor no puede modificar un curso ajeno
+- [x] 4.2 Migración: políticas de escritura de `lessons` y `lesson_contents` solo para el dueño, `CHECK` de URL de YouTube o Vimeo, y triggers que actualizan `courses.updated_at`; verificar con pgTAP la escritura ajena rechazada y una URL inválida rechazada
+- [x] 4.3 Migración: trigger que impide publicar sin lecciones y trigger que impide borrar la última lección de un curso publicado (D7); verificar con pgTAP ambos rechazos y una publicación válida que registra `published_at`
+- [x] 4.4 Migración: RPC `reorder_lessons(course_id, lesson_ids[])` atómica que respeta RLS; verificar con pgTAP que las posiciones quedan sin repetir y que un usuario ajeno no puede reordenar
 - [ ] 4.5 Panel `/instructor` con los cursos propios, su estado, número de lecciones, inscritos y promedio; verificar a mano que un instructor no ve cursos de otro
 - [ ] 4.6 Formulario de crear y editar curso con validación Zod (título y categoría obligatorios) y generación de slug único; verificar con Vitest el esquema y el generador de slug, incluido el caso de colisión
 - [ ] 4.7 Editor de lecciones: crear, editar (markdown y URL de video), reordenar y eliminar; verificar con Vitest el validador de URL de video, y a mano el flujo completo

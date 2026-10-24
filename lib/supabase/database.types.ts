@@ -134,7 +134,7 @@ export type Database = {
           course_id: string
           created_at?: string
           id?: string
-          position: number
+          position?: number
           title: string
           updated_at?: string
         }
@@ -284,6 +284,10 @@ export type Database = {
     }
     Functions: {
       escape_like: { Args: { p_text: string }; Returns: string }
+      reorder_lessons: {
+        Args: { p_course_id: string; p_lesson_ids: string[] }
+        Returns: undefined
+      }
       search_catalog: {
         Args: { p_category_slug?: string; p_query?: string }
         Returns: {
