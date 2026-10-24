@@ -12,9 +12,9 @@
 
 ## 2. Identidad y roles (user-access)
 
-- [ ] 2.1 Migración: enum `user_role`, tabla `profiles`, trigger `on_auth_user_created` que fuerza `role = 'student'`, y privilegios de columna (D2, D3); verificar con pgTAP que un registro con `role: 'admin'` en metadata queda como `student`
-- [ ] 2.2 Migración: funciones `is_admin()`, `is_instructor()` e `is_active_instructor()` con `SECURITY DEFINER` y `search_path = ''` (D4), y políticas RLS de `profiles`; verificar con pgTAP que un usuario edita su `display_name` pero recibe error al actualizar `role`
-- [ ] 2.3 Migración: RPC `set_instructor_role(target_user, enabled)` (D3); verificar con pgTAP que un admin promueve y degrada, y que un estudiante o instructor que la invoca recibe error
+- [x] 2.1 Migración: enum `user_role`, tabla `profiles`, trigger `on_auth_user_created` que fuerza `role = 'student'`, y privilegios de columna (D2, D3); verificar con pgTAP que un registro con `role: 'admin'` en metadata queda como `student`
+- [x] 2.2 Migración: funciones `is_admin()`, `is_instructor()` e `is_active_instructor()` con `SECURITY DEFINER` y `search_path = ''` (D4), y políticas RLS de `profiles`; verificar con pgTAP que un usuario edita su `display_name` pero recibe error al actualizar `role`
+- [x] 2.3 Migración: RPC `set_instructor_role(target_user, enabled)` (D3); verificar con pgTAP que un admin promueve y degrada, y que un estudiante o instructor que la invoca recibe error
 - [ ] 2.4 Páginas de registro, login y logout con Server Actions y validación Zod (contraseña de al menos 8 caracteres); verificar con Vitest el esquema, y a mano los escenarios de registro exitoso, email duplicado y credenciales inválidas
 - [ ] 2.5 Página de perfil para editar nombre y biografía; verificar a mano que el cambio persiste tras recargar
 - [ ] 2.6 Protección de rutas en el middleware: `/instructor/*` solo instructor, `/admin/*` solo admin, `/my-courses` y `/learn/*` con sesión; verificar a mano que un estudiante es redirigido al abrir `/instructor`
