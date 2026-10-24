@@ -59,10 +59,10 @@
 
 ## 8. Verificación integral
 
-- [ ] 8.1 Ejecutar `npx supabase db push` (sin migraciones pendientes) seguido de `npm run test:db` y verificar que todas las pruebas pgTAP pasan
-- [ ] 8.2 Ejecutar `npm run lint`, `npx tsc --noEmit`, `npx vitest run` y `npm run build`, y verificar que todos terminan sin errores
+- [x] 8.1 Ejecutar `npx supabase db push` (sin migraciones pendientes) seguido de `npm run test:db` y verificar que todas las pruebas pgTAP pasan
+- [x] 8.2 Ejecutar `npm run lint`, `npx tsc --noEmit`, `npx vitest run` y `npm run build`, y verificar que todos terminan sin errores
 - [ ] 8.3 Recorrido de punta a punta con tres usuarios (admin, instructor, estudiante): promover, crear curso con 2 lecciones, publicar, buscarlo en el catálogo, inscribirse, ver lecciones y reseñar; verificar que el promedio aparece en el catálogo
-- [ ] 8.4 Revisar `npx supabase db advisors --linked` (Security Advisor), y verificar que no reportan tablas sin RLS ni funciones `SECURITY DEFINER` con `search_path` mutable
+- [x] 8.4 Revisar `npx supabase db advisors --linked` (Security Advisor), y verificar que no reportan tablas sin RLS ni funciones `SECURITY DEFINER` con `search_path` mutable
 
 ## Workflow follow-up
 

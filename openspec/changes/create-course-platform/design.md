@@ -37,6 +37,7 @@ Se usa un enum `user_role` con los valores `student | instructor | admin`, en un
 - El trigger `on_auth_user_created` (con `SECURITY DEFINER`) crea el `profile` con `role = 'student'` y **ignora** cualquier rol que venga en `raw_user_meta_data`.
 - Privilegios por columna: `REVOKE UPDATE ON profiles FROM authenticated` seguido de `GRANT UPDATE (display_name, bio)`. Así el usuario edita su perfil, pero la columna `role` no es actualizable desde la API aunque la política RLS permita la fila.
 - El cambio de rol se hace con la RPC `set_instructor_role(target_user uuid, enabled boolean)` (`SECURITY DEFINER`), que verifica `is_admin()` y solo alterna entre `student` e `instructor`. No existe ninguna ruta en la app para otorgar `admin`.
+- El listado de usuarios del admin usa la RPC `admin_list_users(search)` (`SECURITY DEFINER`, verifica `is_admin()`), porque los emails viven en `auth.users`, que la API no expone.
 - **Por qué**: combina dos defensas independientes (privilegios de columna más una RPC con verificación). Una política RLS de UPDATE sola no puede impedir que el usuario cambie *una columna específica* de su propia fila.
 
 ### D4. Funciones auxiliares de autorización
