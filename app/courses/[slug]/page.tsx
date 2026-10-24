@@ -62,9 +62,10 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
         <section>
           <h2 className="mb-3 text-xl font-semibold">Temario</h2>
           <ol className="divide-y divide-neutral-200 rounded-lg border border-neutral-200 bg-white">
-            {lessons?.map((lesson) => (
+            {/* Se numera por indice: borrar lecciones puede dejar huecos en position */}
+            {lessons?.map((lesson, index) => (
               <li key={lesson.id} className="flex gap-3 px-4 py-3 text-sm">
-                <span className="text-neutral-400">{lesson.position}.</span>
+                <span className="text-neutral-400">{index + 1}.</span>
                 <span>{lesson.title}</span>
               </li>
             ))}
