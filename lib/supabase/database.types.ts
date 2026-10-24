@@ -327,6 +327,16 @@ export type Database = {
       }
     }
     Functions: {
+      admin_list_users: {
+        Args: { p_search?: string }
+        Returns: {
+          created_at: string
+          display_name: string
+          email: string
+          id: string
+          role: Database["public"]["Enums"]["user_role"]
+        }[]
+      }
       escape_like: { Args: { p_text: string }; Returns: string }
       reorder_lessons: {
         Args: { p_course_id: string; p_lesson_ids: string[] }

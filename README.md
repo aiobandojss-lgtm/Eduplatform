@@ -37,6 +37,18 @@ La planificación vive en `openspec/` (ver `openspec/changes/create-course-platf
    ```
    Abrir http://localhost:3000
 
+## Crear el primer administrador
+
+Ninguna pantalla puede otorgar el rol `admin` (es una decisión de seguridad del diseño). El primer admin se crea una sola vez con SQL:
+
+1. Regístrate en la app con tu email.
+2. En el panel de Supabase, abre el **SQL Editor** y ejecuta:
+   ```sql
+   update public.profiles set role = 'admin'
+   where id = (select id from auth.users where email = 'tu-email@ejemplo.com');
+   ```
+3. Recarga la app: en el menú aparece **Administración**. Desde ahí otorgas o retiras el rol instructor a otros usuarios.
+
 ## Scripts
 
 | Comando | Qué hace |
