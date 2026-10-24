@@ -7,7 +7,7 @@
 - [x] 1.3 Instalar `@supabase/supabase-js`, `@supabase/ssr` y `zod`, y Vitest como dependencia de desarrollo; verificar que `npx vitest run` ejecuta sin errores
 - [x] 1.4 Inicializar Supabase CLI (`supabase init`) y conectar un entorno local (Docker) o un proyecto remoto de desarrollo (`supabase link`), según la sección Riesgos de design.md; verificar con `supabase status` (local) o `supabase migration list` (remoto)
 - [ ] 1.5 Crear `.env.example` con `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` sin valores, y documentar en `README.md` cómo levantar el proyecto; verificar que los pasos del README funcionan desde cero
-- [ ] 1.6 Crear los clientes Supabase server/browser en `lib/supabase/` y el `middleware.ts` que refresca la sesión; verificar que `npm run build` compila
+- [x] 1.6 Crear los clientes Supabase server/browser en `lib/supabase/` y el `middleware.ts` que refresca la sesión; verificar que `npm run build` compila
 
 ## 2. Identidad y roles (user-access)
 
