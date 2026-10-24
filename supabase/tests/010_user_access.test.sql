@@ -44,7 +44,7 @@ update public.profiles set display_name = 'hackeado' where id = (select id from 
 insert into _tap(line) select is(
   (select display_name from public.profiles where id = (select id from _ids where name = 'beto')),
   'beto', 'usuario no puede editar el perfil de otro');
-insert into _tap(line) select is(public.is_admin(), false, 'is_admin() es false para un estudiante');
+insert into _tap(line) select is(private.is_admin(), false, 'is_admin() es false para un estudiante');
 
 select pg_temp.login_anon();
 insert into _tap(line) select ok(
@@ -53,7 +53,7 @@ insert into _tap(line) select ok(
 
 -- 2.3 Solo el admin otorga o retira el rol instructor
 select pg_temp.login_as((select id from _ids where name = 'admin'));
-insert into _tap(line) select is(public.is_admin(), true, 'is_admin() es true para el admin');
+insert into _tap(line) select is(private.is_admin(), true, 'is_admin() es true para el admin');
 insert into _tap(line) select is(
   public.set_instructor_role((select id from _ids where name = 'ana'), true)::text,
   'instructor', 'admin promueve a instructor');

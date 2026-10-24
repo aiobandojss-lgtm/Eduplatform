@@ -40,7 +40,7 @@ Se usa un enum `user_role` con los valores `student | instructor | admin`, en un
 - **Por qué**: combina dos defensas independientes (privilegios de columna más una RPC con verificación). Una política RLS de UPDATE sola no puede impedir que el usuario cambie *una columna específica* de su propia fila.
 
 ### D4. Funciones auxiliares de autorización
-Se crean `is_admin()`, `is_instructor()`, `owns_course(course_id)`, `is_enrolled(course_id)` y `is_active_instructor(user_id)`, todas `STABLE`, `SECURITY DEFINER` y con `SET search_path = ''`.
+Se crean `is_admin()`, `is_instructor()`, `owns_course(course_id)`, `can_view_course(course_id)`, `is_enrolled(course_id)` e `is_active_instructor(user_id)`, todas `STABLE`, `SECURITY DEFINER` y con `SET search_path = ''`, en un esquema **`private`** que PostgREST no expone. En `public` el Security Advisor las marcaba como endpoints `/rest/v1/rpc/*` invocables por cualquiera. Solo las RPC pensadas para la app (`set_instructor_role`, `search_catalog`, `reorder_lessons`) viven en `public`.
 - **Por qué**: las políticas leen mejor (`using (owns_course(course_id))`), se evita la recursión de RLS (una política sobre `courses` que consulta `enrollments`, cuya política consulta `courses`...) y Postgres puede cachear el resultado por sentencia. Dentro de ellas se usa `(select auth.uid())` para que se evalúe una vez y no por fila.
 
 ### D5. Separar `lessons` de `lesson_contents`
@@ -84,7 +84,7 @@ La ficha pública (`/courses/[slug]`) filtra además `status = 'published'` en l
 El desempate por `id` evita que se repitan u omitan cursos entre páginas cuando dos comparten fecha (spec course-catalog, paginación). El tamaño de página es 12.
 
 ### D11. Categorías como tabla semilla de solo lectura
-La tabla `categories (id, slug, name)` se llena en `supabase/seed.sql` con SEO, Paid Ads, Social Media, Email Marketing, IA Generativa, Automatización y Analítica. La política SELECT es pública y no hay políticas de escritura, así que solo se modifica por migración.
+La tabla `categories (id, slug, name)` se llena **en la misma migración que la crea** con SEO, Paid Ads, Social Media, Email Marketing, IA Generativa, Automatización y Analítica. Son datos de referencia que también se necesitan en producción, y `seed.sql` queda solo para datos de demo. La política SELECT es pública y no hay políticas de escritura, así que solo se modifica por migración.
 
 ### D12. Pruebas de seguridad con pgTAP, ejecutadas sin Docker
 Se escriben pruebas pgTAP que simulan cada rol (`set local role authenticated` con un `request.jwt.claims` distinto) y verifican cada escenario de "intenta... y el sistema rechaza" de las specs.

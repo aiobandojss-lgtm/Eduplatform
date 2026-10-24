@@ -15,16 +15,16 @@
 - [x] 2.1 Migración: enum `user_role`, tabla `profiles`, trigger `on_auth_user_created` que fuerza `role = 'student'`, y privilegios de columna (D2, D3); verificar con pgTAP que un registro con `role: 'admin'` en metadata queda como `student`
 - [x] 2.2 Migración: funciones `is_admin()`, `is_instructor()` e `is_active_instructor()` con `SECURITY DEFINER` y `search_path = ''` (D4), y políticas RLS de `profiles`; verificar con pgTAP que un usuario edita su `display_name` pero recibe error al actualizar `role`
 - [x] 2.3 Migración: RPC `set_instructor_role(target_user, enabled)` (D3); verificar con pgTAP que un admin promueve y degrada, y que un estudiante o instructor que la invoca recibe error
-- [ ] 2.4 Páginas de registro, login y logout con Server Actions y validación Zod (contraseña de al menos 8 caracteres); verificar con Vitest el esquema, y a mano los escenarios de registro exitoso, email duplicado y credenciales inválidas
+- [x] 2.4 Páginas de registro, login y logout con Server Actions y validación Zod (contraseña de al menos 8 caracteres); verificar con Vitest el esquema, y a mano los escenarios de registro exitoso, email duplicado y credenciales inválidas
 - [ ] 2.5 Página de perfil para editar nombre y biografía; verificar a mano que el cambio persiste tras recargar
-- [ ] 2.6 Protección de rutas en el middleware: `/instructor/*` solo instructor, `/admin/*` solo admin, `/my-courses` y `/learn/*` con sesión; verificar a mano que un estudiante es redirigido al abrir `/instructor`
+- [x] 2.6 Protección de rutas en el middleware: `/instructor/*` solo instructor, `/admin/*` solo admin, `/my-courses` y `/learn/*` con sesión; verificar a mano que un estudiante es redirigido al abrir `/instructor`
 
 ## 3. Cursos y catálogo (course-catalog)
 
-- [ ] 3.1 Migración: tabla `categories` con política de solo lectura, y `seed.sql` con las categorías de D11; verificar con pgTAP que `authenticated` y `anon` leen las categorías pero no pueden insertar
-- [ ] 3.2 Migración: tabla `courses` (slug único, estado `draft | published`, `published_at`, `updated_at`), función `owns_course()` y política SELECT de D6, por ahora sin la rama de inscritos; verificar con pgTAP que `anon` ve solo cursos publicados de instructores activos y que el dueño ve sus borradores
-- [ ] 3.3 Migración: tablas `lessons` y `lesson_contents` separadas (D5) con sus políticas SELECT; verificar con pgTAP que `anon` lee el título de una lección de un curso publicado pero no su `lesson_contents`
-- [ ] 3.4 Migración: tabla `reviews` (necesaria para la vista) y vista `catalog_courses` con `security_invoker = true` (D8); verificar con pgTAP que el promedio de calificaciones 5, 4 y 4 es 4.3 y que un curso sin reseñas devuelve conteo 0
+- [x] 3.1 Migración: tabla `categories` con política de solo lectura, y `seed.sql` con las categorías de D11; verificar con pgTAP que `authenticated` y `anon` leen las categorías pero no pueden insertar
+- [x] 3.2 Migración: tabla `courses` (slug único, estado `draft | published`, `published_at`, `updated_at`), función `owns_course()` y política SELECT de D6, por ahora sin la rama de inscritos; verificar con pgTAP que `anon` ve solo cursos publicados de instructores activos y que el dueño ve sus borradores
+- [x] 3.3 Migración: tablas `lessons` y `lesson_contents` separadas (D5) con sus políticas SELECT; verificar con pgTAP que `anon` lee el título de una lección de un curso publicado pero no su `lesson_contents`
+- [x] 3.4 Migración: tabla `reviews` (necesaria para la vista) y vista `catalog_courses` con `security_invoker = true` (D8); verificar con pgTAP que el promedio de calificaciones 5, 4 y 4 es 4.3 y que un curso sin reseñas devuelve conteo 0
 - [ ] 3.5 Página de catálogo con búsqueda `ILIKE`, filtro por categoría y paginación de 12 ordenada por `published_at DESC, id DESC` (D9, D10); verificar a mano con datos de demo cada escenario del spec course-catalog, incluidos catálogo vacío y búsqueda sin resultados
 - [ ] 3.6 Ficha del curso `/courses/[slug]` con temario sin contenido, instructor con biografía, fecha de actualización y promedio; verificar a mano que un borrador devuelve 404 para quien no es dueño
 

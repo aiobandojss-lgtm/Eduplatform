@@ -14,6 +14,155 @@ export type Database = {
   }
   public: {
     Tables: {
+      categories: {
+        Row: {
+          id: number
+          name: string
+          slug: string
+          sort_order: number
+        }
+        Insert: {
+          id?: never
+          name: string
+          slug: string
+          sort_order?: number
+        }
+        Update: {
+          id?: never
+          name?: string
+          slug?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      courses: {
+        Row: {
+          category_id: number
+          created_at: string
+          description: string
+          id: string
+          instructor_id: string
+          published_at: string | null
+          short_description: string
+          slug: string
+          status: Database["public"]["Enums"]["course_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category_id: number
+          created_at?: string
+          description?: string
+          id?: string
+          instructor_id: string
+          published_at?: string | null
+          short_description: string
+          slug: string
+          status?: Database["public"]["Enums"]["course_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category_id?: number
+          created_at?: string
+          description?: string
+          id?: string
+          instructor_id?: string
+          published_at?: string | null
+          short_description?: string
+          slug?: string
+          status?: Database["public"]["Enums"]["course_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "courses_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "courses_instructor_id_fkey"
+            columns: ["instructor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lesson_contents: {
+        Row: {
+          body_markdown: string
+          lesson_id: string
+          updated_at: string
+          video_url: string | null
+        }
+        Insert: {
+          body_markdown?: string
+          lesson_id: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Update: {
+          body_markdown?: string
+          lesson_id?: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_contents_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: true
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lessons: {
+        Row: {
+          course_id: string
+          created_at: string
+          id: string
+          position: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          id?: string
+          position: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          id?: string
+          position?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lessons_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "catalog_courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lessons_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           bio: string | null
@@ -41,20 +190,135 @@ export type Database = {
         }
         Relationships: []
       }
+      reviews: {
+        Row: {
+          comment: string | null
+          course_id: string
+          created_at: string
+          id: string
+          rating: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          comment?: string | null
+          course_id: string
+          created_at?: string
+          id?: string
+          rating: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          comment?: string | null
+          course_id?: string
+          created_at?: string
+          id?: string
+          rating?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "catalog_courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
-      [_ in never]: never
+      catalog_courses: {
+        Row: {
+          category_id: number | null
+          category_name: string | null
+          category_slug: string | null
+          description: string | null
+          id: string | null
+          instructor_bio: string | null
+          instructor_id: string | null
+          instructor_name: string | null
+          lessons_count: number | null
+          published_at: string | null
+          rating_avg: number | null
+          reviews_count: number | null
+          short_description: string | null
+          slug: string | null
+          status: Database["public"]["Enums"]["course_status"] | null
+          title: string | null
+          updated_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "courses_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "courses_instructor_id_fkey"
+            columns: ["instructor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
-      is_active_instructor: { Args: { p_user_id: string }; Returns: boolean }
-      is_admin: { Args: never; Returns: boolean }
-      is_instructor: { Args: never; Returns: boolean }
+      escape_like: { Args: { p_text: string }; Returns: string }
+      search_catalog: {
+        Args: { p_category_slug?: string; p_query?: string }
+        Returns: {
+          category_id: number | null
+          category_name: string | null
+          category_slug: string | null
+          description: string | null
+          id: string | null
+          instructor_bio: string | null
+          instructor_id: string | null
+          instructor_name: string | null
+          lessons_count: number | null
+          published_at: string | null
+          rating_avg: number | null
+          reviews_count: number | null
+          short_description: string | null
+          slug: string | null
+          status: Database["public"]["Enums"]["course_status"] | null
+          title: string | null
+          updated_at: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "catalog_courses"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       set_instructor_role: {
         Args: { p_enabled: boolean; p_target_user: string }
         Returns: Database["public"]["Enums"]["user_role"]
       }
     }
     Enums: {
+      course_status: "draft" | "published"
       user_role: "student" | "instructor" | "admin"
     }
     CompositeTypes: {
@@ -183,6 +447,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      course_status: ["draft", "published"],
       user_role: ["student", "instructor", "admin"],
     },
   },
