@@ -13,7 +13,7 @@ export default async function InstructorDashboardPage() {
   // Filtro explicito por dueno: RLS tambien expone los cursos publicados de otros
   const { data: courses } = await supabase
     .from("catalog_courses")
-    .select("id, title, status, lessons_count, rating_avg, reviews_count, updated_at")
+    .select("id, title, status, lessons_count, enrollments_count, rating_avg, reviews_count, updated_at")
     .eq("instructor_id", profile.id)
     .order("updated_at", { ascending: false });
 
@@ -37,6 +37,7 @@ export default async function InstructorDashboardPage() {
                 <th className="px-4 py-3 font-medium">Curso</th>
                 <th className="px-4 py-3 font-medium">Estado</th>
                 <th className="px-4 py-3 font-medium">Lecciones</th>
+                <th className="px-4 py-3 font-medium">Inscritos</th>
                 <th className="px-4 py-3 font-medium">Calificación</th>
               </tr>
             </thead>
@@ -52,6 +53,7 @@ export default async function InstructorDashboardPage() {
                     <StatusBadge status={course.status} />
                   </td>
                   <td className="px-4 py-3">{course.lessons_count}</td>
+                  <td className="px-4 py-3">{course.enrollments_count}</td>
                   <td className="px-4 py-3">{formatRating(course.rating_avg, course.reviews_count ?? 0)}</td>
                 </tr>
               ))}

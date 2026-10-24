@@ -41,7 +41,7 @@
 
 ## 5. Inscripción y acceso al contenido (course-enrollment)
 
-- [ ] 5.1 Migración: tabla `enrollments` con `UNIQUE (user_id, course_id)` y FK `ON DELETE RESTRICT`, función `is_enrolled()`, política INSERT que exige curso publicado y no propio, y la rama de inscritos en la política SELECT de `courses` y `lesson_contents`; verificar con pgTAP inscripción duplicada, borrador, curso propio y borrado de curso con inscritos, todos rechazados
+- [x] 5.1 Migración: tabla `enrollments` con `UNIQUE (user_id, course_id)` y FK `ON DELETE RESTRICT`, función `is_enrolled()`, política INSERT que exige curso publicado y no propio, y la rama de inscritos en la política SELECT de `courses` y `lesson_contents`; verificar con pgTAP inscripción duplicada, borrador, curso propio y borrado de curso con inscritos, todos rechazados
 - [ ] 5.2 Botón "Inscribirme" / "Ir al curso" en la ficha, con redirección al login y regreso a la ficha (`?next=`); verificar a mano los escenarios de visitante sin sesión e inscripción exitosa
 - [ ] 5.3 Visor `/learn/[courseId]/[lessonId]` con temario lateral, contenido markdown, video embebido y navegación anterior/siguiente; verificar a mano que un no inscrito es redirigido a la ficha
 - [ ] 5.4 Página "Mis cursos" ordenada por fecha de inscripción, con estado vacío; verificar a mano, y con pgTAP que un inscrito sigue leyendo `lesson_contents` después de que el curso se despublica
