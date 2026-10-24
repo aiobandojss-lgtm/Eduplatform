@@ -45,4 +45,4 @@ La planificación vive en `openspec/` (ver `openspec/changes/create-course-platf
 | `npm run build` | Build de producción |
 | `npm run lint` | ESLint |
 | `npm test` | Pruebas unitarias (Vitest) |
-| `npx supabase test db --linked` | Pruebas de seguridad RLS (pgTAP) contra la base vinculada |
+| `npm run test:db` | Pruebas de seguridad RLS (pgTAP) contra la base vinculada, sin Docker |

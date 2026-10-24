@@ -86,9 +86,11 @@ El desempate por `id` evita que se repitan u omitan cursos entre páginas cuando
 ### D11. Categorías como tabla semilla de solo lectura
 La tabla `categories (id, slug, name)` se llena en `supabase/seed.sql` con SEO, Paid Ads, Social Media, Email Marketing, IA Generativa, Automatización y Analítica. La política SELECT es pública y no hay políticas de escritura, así que solo se modifica por migración.
 
-### D12. Pruebas de seguridad con pgTAP
-`supabase test db` ejecuta pruebas pgTAP que simulan cada rol (`set local role authenticated` con un `request.jwt.claims` distinto) y verifican cada escenario de "intenta... y el sistema rechaza" de las specs.
+### D12. Pruebas de seguridad con pgTAP, ejecutadas sin Docker
+Se escriben pruebas pgTAP que simulan cada rol (`set local role authenticated` con un `request.jwt.claims` distinto) y verifican cada escenario de "intenta... y el sistema rechaza" de las specs.
 - **Por qué**: las políticas RLS son el código más crítico del sistema y el más difícil de probar desde la UI. Probarlas en la base es lo estándar en proyectos con Supabase.
+- **Ejecución**: `supabase test db` requiere Docker incluso con `--linked`, y el entorno de desarrollo no lo tiene. Un runner propio (`scripts/test-db.mjs`, `npm run test:db`) toma cada `supabase/tests/*.test.sql`, le antepone los helpers comunes (`supabase/tests/_helpers.sql`), lo envuelve en `begin ... rollback` para no dejar datos, lo ejecuta con `supabase db query --linked` (Management API) y falla si alguna línea TAP es `not ok` o si el plan no se cumple.
+- **Alternativa descartada**: instalar Docker Desktop (3 a 4 GB de RAM, más WSL2). Los archivos pgTAP son compatibles con `supabase test db`, así que se puede migrar a ese comando sin reescribir las pruebas.
 - La UI se valida con Vitest (esquemas Zod y utilidades) y con un recorrido manual de punta a punta descrito en tasks.md.
 
 ### D13. Estructura del proyecto
@@ -112,7 +114,8 @@ Estilos con Tailwind CSS. Los slugs de curso se generan a partir del título y s
 - [Error en una política RLS que expone contenido privado] → pgTAP con un caso por cada escenario de acceso negado, y ejecutar `supabase db lint` y el Security Advisor de Supabase antes de cada despliegue.
 - [Una función `SECURITY DEFINER` mal escrita escala privilegios] → `SET search_path = ''`, nombres calificados con esquema (`public.profiles`), `REVOKE EXECUTE ... FROM public` y `GRANT` solo a `authenticated`.
 - [El promedio vía vista se vuelve lento con muchas reseñas] → índice en `reviews(course_id)`. Si hace falta, migrar a columnas desnormalizadas (D8) sin cambiar el spec.
-- [Supabase CLI local requiere Docker Desktop en Windows] → usar un proyecto Supabase remoto de desarrollo con `supabase link` y `supabase db push`. Las pruebas pgTAP también corren contra él.
+- [Supabase CLI local requiere Docker Desktop en Windows] → usar un proyecto Supabase remoto de desarrollo con `supabase link` y `supabase db push`. Las pruebas pgTAP corren contra él con el runner de D12.
+- [Sin base local no hay `supabase db reset`: las pruebas corren sobre la base de desarrollo compartida] → cada archivo de prueba corre dentro de una transacción que termina en `rollback`, así que no deja datos.
 - [Confirmación de email: el spec asume sesión inmediata al registrarse] → se deshabilita la confirmación de email en el MVP y se revisa antes de producción.
 - [Offset pagination degrada en páginas muy profundas] → aceptable a escala de MVP. Se puede cambiar a paginación por keyset sin cambiar el spec.
 

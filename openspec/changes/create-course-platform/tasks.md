@@ -8,6 +8,7 @@
 - [x] 1.4 Inicializar Supabase CLI (`supabase init`) y conectar un entorno local (Docker) o un proyecto remoto de desarrollo (`supabase link`), según la sección Riesgos de design.md; verificar con `supabase status` (local) o `supabase migration list` (remoto)
 - [ ] 1.5 Crear `.env.example` con `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` sin valores, y documentar en `README.md` cómo levantar el proyecto; verificar que los pasos del README funcionan desde cero
 - [x] 1.6 Crear los clientes Supabase server/browser en `lib/supabase/` y el `middleware.ts` que refresca la sesión; verificar que `npm run build` compila
+- [x] 1.7 Crear el runner de pruebas pgTAP sin Docker (`scripts/test-db.mjs`, `supabase/tests/_helpers.sql`, `npm run test:db`) según D12; verificar que una prueba que pasa da código 0 y una que falla da código distinto de 0 indicando cuál falló
 
 ## 2. Identidad y roles (user-access)
 
@@ -58,10 +59,10 @@
 
 ## 8. Verificación integral
 
-- [ ] 8.1 Ejecutar `supabase db reset` seguido de `supabase test db` sobre una base limpia y verificar que todas las pruebas pgTAP pasan
+- [ ] 8.1 Ejecutar `npx supabase db push` (sin migraciones pendientes) seguido de `npm run test:db` y verificar que todas las pruebas pgTAP pasan
 - [ ] 8.2 Ejecutar `npm run lint`, `npx tsc --noEmit`, `npx vitest run` y `npm run build`, y verificar que todos terminan sin errores
 - [ ] 8.3 Recorrido de punta a punta con tres usuarios (admin, instructor, estudiante): promover, crear curso con 2 lecciones, publicar, buscarlo en el catálogo, inscribirse, ver lecciones y reseñar; verificar que el promedio aparece en el catálogo
-- [ ] 8.4 Revisar el Security Advisor de Supabase y `supabase db lint`, y verificar que no reportan tablas sin RLS ni funciones `SECURITY DEFINER` con `search_path` mutable
+- [ ] 8.4 Revisar `npx supabase db advisors --linked` (Security Advisor), y verificar que no reportan tablas sin RLS ni funciones `SECURITY DEFINER` con `search_path` mutable
 
 ## Workflow follow-up
 
