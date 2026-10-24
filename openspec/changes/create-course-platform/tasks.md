@@ -48,7 +48,7 @@
 
 ## 6. Reseñas (course-reviews)
 
-- [ ] 6.1 Migración: `UNIQUE (course_id, user_id)` y `CHECK` (rating de 1 a 5, comentario de 2000 caracteres o menos) en `reviews`, con políticas SELECT pública para cursos visibles, INSERT solo inscrito no dueño, y UPDATE y DELETE solo el autor; verificar con pgTAP cada escenario de rechazo del spec course-reviews
+- [x] 6.1 Migración: `UNIQUE (course_id, user_id)` y `CHECK` (rating de 1 a 5, comentario de 2000 caracteres o menos) en `reviews`, con políticas SELECT pública para cursos visibles, INSERT solo inscrito no dueño, y UPDATE y DELETE solo el autor; verificar con pgTAP cada escenario de rechazo del spec course-reviews
 - [ ] 6.2 Formulario de reseña en la ficha (visible solo para inscritos no dueños) que se convierte en edición si ya existe una; verificar con Vitest el esquema, y a mano crear, editar y eliminar
 - [ ] 6.3 Listado de reseñas en la ficha, de la más reciente a la más antigua, y "Sin reseñas" en catálogo y ficha cuando el conteo es 0; verificar a mano que el promedio se recalcula al editar una reseña
 

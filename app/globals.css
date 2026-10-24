@@ -8,3 +8,15 @@ body {
   background: #fafafa;
   color: #171717;
 }
+
+/* Estilos minimos para el Markdown de las lecciones (Tailwind resetea titulos y listas) */
+.prose-lesson h1 { font-size: 1.5rem; font-weight: 700; }
+.prose-lesson h2 { font-size: 1.25rem; font-weight: 600; }
+.prose-lesson h3 { font-size: 1.125rem; font-weight: 600; }
+.prose-lesson ul { list-style: disc; padding-left: 1.5rem; }
+.prose-lesson ol { list-style: decimal; padding-left: 1.5rem; }
+.prose-lesson a { color: #4f46e5; text-decoration: underline; }
+.prose-lesson code { background: #f4f4f5; padding: 0.1rem 0.3rem; border-radius: 0.25rem; font-size: 0.875em; }
+.prose-lesson pre { background: #18181b; color: #fafafa; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; }
+.prose-lesson pre code { background: transparent; padding: 0; }
+.prose-lesson blockquote { border-left: 4px solid #e4e4e7; padding-left: 1rem; color: #52525b; }
