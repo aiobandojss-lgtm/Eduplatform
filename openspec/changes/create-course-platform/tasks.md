@@ -4,7 +4,7 @@
 
 - [x] 1.1 Inicializar el repositorio git con un `.gitignore` de Next.js que excluya `.env*.local`, y verificar con `git status` que no aparecen archivos de entorno
 - [x] 1.2 Crear la app Next.js (App Router, TypeScript estricto, Tailwind, ESLint) en la raíz sin borrar `openspec/` ni `.claude/`, y verificar que `npm run build` y `npm run lint` pasan
-- [ ] 1.3 Instalar `@supabase/supabase-js`, `@supabase/ssr` y `zod`, y Vitest como dependencia de desarrollo; verificar que `npx vitest run` ejecuta sin errores
+- [x] 1.3 Instalar `@supabase/supabase-js`, `@supabase/ssr` y `zod`, y Vitest como dependencia de desarrollo; verificar que `npx vitest run` ejecuta sin errores
 - [ ] 1.4 Inicializar Supabase CLI (`supabase init`) y conectar un entorno local (Docker) o un proyecto remoto de desarrollo (`supabase link`), según la sección Riesgos de design.md; verificar con `supabase status` (local) o `supabase migration list` (remoto)
 - [ ] 1.5 Crear `.env.example` con `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` sin valores, y documentar en `README.md` cómo levantar el proyecto; verificar que los pasos del README funcionan desde cero
 - [ ] 1.6 Crear los clientes Supabase server/browser en `lib/supabase/` y el `middleware.ts` que refresca la sesión; verificar que `npm run build` compila
