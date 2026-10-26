@@ -20,6 +20,7 @@ export function ActionButton({
   confirmMessage,
   variant = "secondary",
   ariaLabel,
+  messageAlign = "left",
 }: {
   action: Action;
   fields: Record<string, string>;
@@ -27,6 +28,8 @@ export function ActionButton({
   confirmMessage?: string;
   variant?: keyof typeof variants;
   ariaLabel?: string;
+  // Lado hacia el que se despliega el mensaje (right para botones alineados a la derecha)
+  messageAlign?: "left" | "right";
 }) {
   const [state, formAction, pending] = useActionState<FormState, FormData>(action, {});
 
@@ -36,7 +39,7 @@ export function ActionButton({
       onSubmit={(e) => {
         if (confirmMessage && !window.confirm(confirmMessage)) e.preventDefault();
       }}
-      className="inline-flex flex-col items-start gap-1"
+      className="relative inline-flex"
     >
       {Object.entries(fields).map(([name, value]) => (
         <input key={name} type="hidden" name={name} value={value} />
@@ -49,8 +52,17 @@ export function ActionButton({
       >
         {pending ? "..." : label}
       </button>
-      {state.error && <span className="text-xs text-red-600">{state.error}</span>}
-      {state.success && <span className="text-xs text-green-700">{state.success}</span>}
+      {/* Posicion absoluta: el mensaje no cambia el ancho del boton ni desplaza a sus vecinos */}
+      {(state.error || state.success) && (
+        <span
+          role={state.error ? "alert" : "status"}
+          className={`absolute top-full z-10 mt-1 whitespace-nowrap rounded bg-white/95 px-1 text-xs ${
+            messageAlign === "right" ? "right-0" : "left-0"
+          } ${state.error ? "text-red-600" : "text-green-700"}`}
+        >
+          {state.error ?? state.success}
+        </span>
+      )}
     </form>
   );
 }

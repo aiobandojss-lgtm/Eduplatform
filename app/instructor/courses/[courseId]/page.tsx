@@ -80,6 +80,7 @@ export default async function EditCoursePage({ params }: { params: Promise<{ cou
                       label="↑"
                       ariaLabel={`Subir ${lesson.title}`}
                       variant="ghost"
+                      messageAlign="right"
                     />
                   )}
                   {index < lessons.length - 1 && (
@@ -89,6 +90,7 @@ export default async function EditCoursePage({ params }: { params: Promise<{ cou
                       label="↓"
                       ariaLabel={`Bajar ${lesson.title}`}
                       variant="ghost"
+                      messageAlign="right"
                     />
                   )}
                   <ActionButton
@@ -96,6 +98,7 @@ export default async function EditCoursePage({ params }: { params: Promise<{ cou
                     fields={{ courseId: course.id, lessonId: lesson.id }}
                     label="Eliminar"
                     variant="ghost"
+                      messageAlign="right"
                     confirmMessage={`¿Eliminar la lección "${lesson.title}"?`}
                   />
                 </div>
