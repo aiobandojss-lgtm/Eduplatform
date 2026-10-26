@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { signOut } from "@/app/(auth)/actions";
+import { SignOutButton } from "@/components/sign-out-button";
 import { getCurrentProfile } from "@/lib/auth";
 
 export async function SiteHeader() {
@@ -34,11 +34,7 @@ export async function SiteHeader() {
               <Link href="/profile" className="text-neutral-700 hover:text-neutral-900">
                 {profile.displayName}
               </Link>
-              <form action={signOut}>
-                <button type="submit" className="text-neutral-500 hover:text-neutral-900">
-                  Salir
-                </button>
-              </form>
+              <SignOutButton />
             </>
           ) : (
             <>

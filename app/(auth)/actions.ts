@@ -55,8 +55,9 @@ export async function signIn(_prev: FormState, formData: FormData): Promise<Form
   return { redirectTo: safeNextPath(formValue(formData, "next")) };
 }
 
+// Sin redirect(): el cliente recarga la app completa (ver SignOutButton). Redirigir desde
+// el Server Action renderiza la pagina siguiente con las cookies de sesion a medio borrar.
 export async function signOut(): Promise<void> {
   const supabase = await createClient();
   await supabase.auth.signOut();
-  redirect("/");
 }

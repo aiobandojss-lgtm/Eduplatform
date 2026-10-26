@@ -31,7 +31,11 @@ export default async function CatalogPage({
       .range(from, to),
   ]);
 
-  if (error) throw new Error("No se pudo cargar el catálogo");
+  if (error) {
+    // Se registra la causa real en el servidor; al usuario se le muestra un mensaje generico
+    console.error("search_catalog fallo:", error.code, error.message);
+    throw new Error("No se pudo cargar el catálogo");
+  }
 
   const total = count ?? 0;
   const pages = totalPages(total);
