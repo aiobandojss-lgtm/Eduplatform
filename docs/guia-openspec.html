@@ -1,0 +1,979 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Manual OpenSpec Aplicado</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: indice lateral fijo + columna de lectura de ~68ch; capitulos como "requisitos" con escenarios WHEN/THEN como firma visual */
+:root {
+  --paper: #f5f7f8;
+  --sheet: #ffffff;
+  --ink: #16202a;
+  --muted: #566270;
+  --rule: #d7dde3;
+  --accent: #0c6a5b;
+  --accent-ink: #ffffff;
+  --accent-soft: #dcefea;
+  --warn: #9a5506;
+  --warn-soft: #fbefdc;
+  --bad: #b42318;
+  --bad-soft: #fde8e5;
+  --code-bg: #edf1f4;
+  --code-ink: #1b2a36;
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --font-mono: "JetBrains Mono", Consolas, "Courier New", monospace;
+  --step--1: 0.875rem;
+  --step-0: 1.0625rem;
+  --step-1: 1.3rem;
+  --step-2: 1.7rem;
+  --step-3: 2.3rem;
+  --step-4: clamp(2.4rem, 6vw, 3.6rem);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0e1418; --sheet: #141c22; --ink: #e4e9ed; --muted: #98a5b0; --rule: #26323b;
+    --accent: #52c7ac; --accent-ink: #06231d; --accent-soft: #123129;
+    --warn: #eaa64d; --warn-soft: #33250f; --bad: #f28a7e; --bad-soft: #3a1815;
+    --code-bg: #182229; --code-ink: #d6e1e8; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0e1418; --sheet: #141c22; --ink: #e4e9ed; --muted: #98a5b0; --rule: #26323b;
+  --accent: #52c7ac; --accent-ink: #06231d; --accent-soft: #123129;
+  --warn: #eaa64d; --warn-soft: #33250f; --bad: #f28a7e; --bad-soft: #3a1815;
+  --code-bg: #182229; --code-ink: #d6e1e8; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 1.5rem; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  line-height: 1.65;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+a { color: var(--accent); text-underline-offset: 3px; }
+a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px;
+}
+
+.shell {
+  max-width: 1180px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  gap: 3.5rem;
+  padding-block: 2.5rem 5rem;
+}
+@media (max-width: 900px) { .shell { grid-template-columns: minmax(0, 1fr); gap: 1.5rem; } }
+
+/* Indice */
+.toc { position: sticky; top: 1.5rem; align-self: start; max-height: calc(100vh - 3rem); overflow-y: auto; }
+@media (max-width: 900px) { .toc { position: static; max-height: none; } }
+.toc-title {
+  font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--muted); margin: 0 0 0.75rem;
+}
+.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; counter-reset: cap; }
+.toc li a {
+  display: grid; grid-template-columns: 2.2rem 1fr; align-items: baseline;
+  padding: 0.35rem 0.5rem; border-radius: 6px; text-decoration: none;
+  color: var(--muted); font-family: var(--font-display); font-size: 0.95rem; line-height: 1.3;
+}
+.toc li a span { font-family: var(--font-mono); font-size: 0.75rem; }
+.toc li a:hover { color: var(--ink); background: var(--code-bg); }
+.toc li a.active { color: var(--accent); background: var(--accent-soft); }
+@media (max-width: 900px) {
+  .toc ol { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+}
+
+main { min-width: 0; }
+.prose { max-width: 70ch; }
+
+/* Portada */
+.hero { padding-block: 0.5rem 2.5rem; border-bottom: 1px solid var(--rule); margin-bottom: 1rem; }
+.kicker {
+  font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--accent); margin: 0 0 1rem;
+}
+h1 {
+  font-family: var(--font-display); font-weight: 800; font-size: var(--step-4);
+  line-height: 1.02; letter-spacing: -0.02em; margin: 0 0 1.25rem; text-wrap: balance;
+}
+.lede { font-size: var(--step-1); line-height: 1.5; color: var(--muted); max-width: 60ch; margin: 0 0 2rem; }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; }
+.fact { background: var(--sheet); padding: 0.9rem 1rem; }
+.fact b { display: block; font-family: var(--font-display); font-size: 1.7rem; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.fact span { display: block; margin-top: 0.3rem; font-family: var(--font-mono); font-size: 0.72rem; line-height: 1.35; color: var(--muted); letter-spacing: 0.03em; }
+.hero-note { font-size: var(--step--1); color: var(--muted); margin: 1rem 0 0; }
+
+/* Capitulos */
+section.cap { padding-block: 3rem 1rem; border-bottom: 1px solid var(--rule); }
+.cap-eyebrow {
+  font-family: var(--font-mono); font-size: 0.78rem; color: var(--muted); margin: 0 0 0.5rem;
+}
+.cap-eyebrow b { color: var(--accent); font-weight: 600; }
+h2 {
+  font-family: var(--font-display); font-weight: 700; font-size: var(--step-3);
+  line-height: 1.1; letter-spacing: -0.015em; margin: 0 0 1rem; text-wrap: balance;
+}
+h3 { font-family: var(--font-display); font-weight: 700; font-size: var(--step-1); margin: 2.2rem 0 0.6rem; text-wrap: balance; }
+h4 { font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; margin: 1.5rem 0 0.4rem; }
+p { margin: 0 0 1rem; }
+ul, ol { padding-left: 1.3rem; margin: 0 0 1rem; }
+li { margin-bottom: 0.35rem; }
+strong { font-weight: 600; }
+code { font-family: var(--font-mono); font-size: 0.86em; background: var(--code-bg); color: var(--code-ink); padding: 0.1em 0.35em; border-radius: 4px; }
+pre {
+  font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.55;
+  background: var(--code-bg); color: var(--code-ink);
+  padding: 1rem 1.1rem; border-radius: 8px; overflow-x: auto; margin: 0 0 1.2rem;
+}
+pre code { background: none; padding: 0; font-size: inherit; }
+pre .c { color: var(--muted); }
+pre .k { color: var(--accent); font-weight: 600; }
+.file { font-family: var(--font-mono); font-size: 0.74rem; color: var(--muted); margin: 0 0 0.3rem; }
+
+/* Tablas */
+.table-wrap { overflow-x: auto; margin: 0 0 1.4rem; border: 1px solid var(--rule); border-radius: 8px; }
+table { border-collapse: collapse; width: 100%; font-size: 0.93rem; line-height: 1.45; background: var(--sheet); }
+th, td { text-align: left; padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-family: var(--font-display); font-weight: 700; background: var(--code-bg); font-size: 0.88rem; }
+tr:last-child td { border-bottom: none; }
+
+/* Notas */
+.note { border-radius: 8px; padding: 0.9rem 1.1rem; margin: 0 0 1.3rem; background: var(--sheet); border: 1px solid var(--rule); }
+.note > :last-child { margin-bottom: 0; }
+.note-label { display: block; font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.35rem; font-weight: 600; }
+.note.good { background: var(--accent-soft); border-color: transparent; }
+.note.good .note-label { color: var(--accent); }
+.note.warn { background: var(--warn-soft); border-color: transparent; }
+.note.warn .note-label { color: var(--warn); }
+.note.bad { background: var(--bad-soft); border-color: transparent; }
+.note.bad .note-label { color: var(--bad); }
+.note.real .note-label { color: var(--muted); }
+
+/* Escenario WHEN/THEN: la firma visual del documento */
+.scenario { border: 1px solid var(--rule); border-radius: 8px; background: var(--sheet); margin: 0 0 1.3rem; overflow: hidden; }
+.scenario-head { font-family: var(--font-mono); font-size: 0.78rem; padding: 0.5rem 0.9rem; background: var(--code-bg); color: var(--muted); }
+.scenario-row { display: grid; grid-template-columns: 4.5rem minmax(0, 1fr); gap: 0.75rem; padding: 0.55rem 0.9rem; border-top: 1px solid var(--rule); }
+.scenario-row b { font-family: var(--font-mono); font-size: 0.78rem; color: var(--accent); padding-top: 0.2rem; }
+
+/* Comparacion lado a lado */
+.pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-bottom: 1.3rem; }
+.pair > * { min-width: 0; }
+.pair pre { margin: 0; height: 100%; }
+@media (max-width: 700px) { .pair { grid-template-columns: minmax(0, 1fr); } }
+
+/* Diagramas */
+.figure { margin: 0 0 1.5rem; border: 1px solid var(--rule); border-radius: 10px; background: var(--sheet); padding: 1rem; overflow-x: auto; }
+.figure svg { display: block; min-width: 640px; width: 100%; height: auto; }
+.figcap { font-size: var(--step--1); color: var(--muted); margin: 0.6rem 0 0; }
+svg .box { fill: var(--sheet); stroke: var(--rule); stroke-width: 1.5; }
+svg .box-accent { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.5; }
+svg .t-title { fill: var(--ink); font-family: var(--font-display); font-weight: 700; font-size: 17px; }
+svg .t-cmd { fill: var(--accent); font-family: var(--font-mono); font-size: 12px; }
+svg .t-small { fill: var(--muted); font-family: var(--font-mono); font-size: 11px; }
+svg .arrow { stroke: var(--muted); stroke-width: 1.5; fill: none; }
+svg .arrow-head { fill: var(--muted); }
+
+/* Capas de seguridad */
+.layers { display: grid; gap: 6px; margin: 0 0 1.5rem; }
+.layer { display: grid; grid-template-columns: 9.5rem minmax(0, 1fr); gap: 1rem; align-items: baseline; padding: 0.75rem 1rem; border-radius: 8px; background: var(--sheet); border: 1px solid var(--rule); }
+.layer b { font-family: var(--font-display); }
+.layer small { display: block; font-family: var(--font-mono); font-size: 0.72rem; color: var(--muted); }
+.layer p { margin: 0; font-size: 0.95rem; }
+.layer.core { background: var(--accent-soft); border-color: var(--accent); }
+@media (max-width: 560px) { .layer { grid-template-columns: minmax(0, 1fr); gap: 0.3rem; } }
+
+/* Ciclo paso a paso */
+.steps { display: grid; gap: 1rem; margin-bottom: 1.5rem; }
+.step { display: grid; grid-template-columns: 3rem minmax(0, 1fr); gap: 1rem; }
+.step-num { font-family: var(--font-display); font-weight: 800; font-size: 1.6rem; color: var(--accent); line-height: 1; padding-top: 0.2rem; }
+.step h4 { margin-top: 0; }
+
+/* Repaso */
+details.quiz { border: 1px dashed var(--rule); border-radius: 8px; padding: 0.7rem 1rem; margin: 0 0 0.7rem; background: var(--sheet); }
+details.quiz summary { cursor: pointer; font-family: var(--font-display); font-weight: 700; }
+details.quiz summary::marker { color: var(--accent); }
+details.quiz p { margin: 0.6rem 0 0; }
+.quiz-title { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 2rem 0 0.6rem; }
+
+/* Checklist */
+.check-group { margin-bottom: 1.6rem; }
+.check-group h4 { margin: 0 0 0.5rem; display: flex; justify-content: space-between; gap: 1rem; align-items: baseline; }
+.check-group h4 span { font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); font-weight: 400; font-variant-numeric: tabular-nums; }
+.check { display: grid; grid-template-columns: 1.4rem minmax(0, 1fr); gap: 0.6rem; align-items: start; padding: 0.45rem 0.6rem; border-radius: 6px; cursor: pointer; }
+.check:hover { background: var(--code-bg); }
+.check input { width: 1.05rem; height: 1.05rem; margin-top: 0.3rem; accent-color: var(--accent); }
+.check input:checked + span { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--rule); }
+.btn {
+  font-family: var(--font-display); font-weight: 700; font-size: 0.85rem;
+  border: 1px solid var(--rule); background: var(--sheet); color: var(--ink);
+  padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer;
+}
+.btn:hover { border-color: var(--accent); color: var(--accent); }
+.tpl { position: relative; }
+.tpl .btn { position: absolute; top: 0.5rem; right: 0.5rem; }
+
+.soon { border: 2px dashed var(--rule); border-radius: 10px; padding: 1.3rem; color: var(--muted); }
+footer { padding-block: 2rem; font-size: var(--step--1); color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="shell">
+
+<nav class="toc" aria-label="Índice">
+  <p class="toc-title">Índice</p>
+  <ol>
+    <li><a href="#sdd"><span>01</span>Qué es SDD</a></li>
+    <li><a href="#mapa"><span>02</span>El mapa de OpenSpec</a></li>
+    <li><a href="#ciclo"><span>03</span>El ciclo completo</a></li>
+    <li><a href="#artefactos"><span>04</span>Cómo escribir artefactos</a></li>
+    <li><a href="#pruebas"><span>05</span>Pruebas</a></li>
+    <li><a href="#seguridad"><span>06</span>Seguridad</a></li>
+    <li><a href="#realidad"><span>07</span>Cuando el plan falla</a></li>
+    <li><a href="#agentic"><span>08</span>Lecciones de AI Agentic Engineer</a></li>
+    <li><a href="#plantilla"><span>09</span>Plantillas y checklist</a></li>
+    <li><a href="#vision"><span>10</span>Rediseño con Claude Vision</a></li>
+  </ol>
+</nav>
+
+<main>
+
+<header class="hero">
+  <p class="kicker">Spec-Driven Development · caso real</p>
+  <h1>Manual OpenSpec Aplicado</h1>
+  <p class="lede">Todo lo que aprendimos construyendo una plataforma de cursos estilo Udemy con OpenSpec, Next.js y Supabase, convertido en un método que puedes repetir en cualquier proyecto: Angular, .NET, Flutter u Oracle.</p>
+  <div class="facts">
+    <div class="fact"><b>5</b><span>capacidades (specs)</span></div>
+    <div class="fact"><b>26</b><span>requisitos</span></div>
+    <div class="fact"><b>40/40</b><span>tareas completas</span></div>
+    <div class="fact"><b>107</b><span>aserciones pgTAP</span></div>
+    <div class="fact"><b>43</b><span>pruebas Vitest</span></div>
+    <div class="fact"><b>4</b><span>bugs hallados a mano</span></div>
+  </div>
+  <p class="hero-note">Proyecto: <code>create-course-platform</code>, del 22 al 26 de octubre de 2026. Todos los ejemplos de este manual salen del código y los artefactos reales del repositorio.</p>
+</header>
+
+<!-- ============ 01 ============ -->
+<section class="cap prose" id="sdd">
+  <p class="cap-eyebrow"><b>Capítulo 01</b> · Fundamentos</p>
+  <h2>Qué es Spec-Driven Development</h2>
+
+  <p>Cuando le pides a un agente de IA "hazme una plataforma de cursos", el agente tiene que inventar cientos de decisiones que no le diste: quién puede publicar, si un curso en borrador se ve, qué pasa si alguien se inscribe dos veces. Las inventa rápido y con seguridad, y muchas no coinciden con lo que tú querías. Eso es <strong>vibe coding</strong>: funciona para prototipos y falla en sistemas reales.</p>
+
+  <p><strong>Spec-Driven Development (SDD)</strong> invierte el orden. Primero se escribe, en lenguaje claro, <em>qué</em> debe hacer el sistema y <em>cómo se comprueba</em>. Esas especificaciones las revisas tú. Después el agente implementa contra ese contrato y cada tarea se verifica contra él.</p>
+
+  <h3>Las tres preguntas separadas</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Pregunta</th><th>Artefacto</th><th>Quién decide</th></tr></thead>
+    <tbody>
+      <tr><td><strong>¿Por qué</strong> y qué cambia?</td><td><code>proposal.md</code></td><td>Tú (negocio). El agente redacta.</td></tr>
+      <tr><td><strong>¿Qué</strong> debe hacer el sistema?</td><td><code>specs/*/spec.md</code></td><td>Tú apruebas cada requisito.</td></tr>
+      <tr><td><strong>¿Cómo</strong> se construye?</td><td><code>design.md</code></td><td>El agente propone, tú validas las decisiones.</td></tr>
+      <tr><td><strong>¿En qué pasos?</strong></td><td><code>tasks.md</code></td><td>El agente, con verificación en cada tarea.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Por qué funciona tan bien con agentes</h3>
+  <ul>
+    <li><strong>El contexto sobrevive.</strong> Una conversación con la IA se pierde o se resume; los archivos de <code>openspec/</code> no. Cualquier sesión nueva (o cualquier persona) lee el plan y continúa donde quedó.</li>
+    <li><strong>Revisas antes de que exista código.</strong> Corregir un requisito cuesta un minuto; corregir una base de datos con datos reales cuesta días.</li>
+    <li><strong>Cada escenario se vuelve una prueba.</strong> Los <code>WHEN / THEN</code> de las specs se traducen casi literalmente a pruebas automáticas (lo verás en el capítulo 05).</li>
+    <li><strong>Los cambios quedan con historia.</strong> Cada cambio se archiva con su propuesta y su diseño: dentro de un año sabrás <em>por qué</em> se decidió algo, no solo qué se hizo.</li>
+  </ul>
+
+  <div class="note real">
+    <span class="note-label">Si vienes de Oracle Forms</span>
+    <p>Es la misma idea del documento de requerimientos funcionales que te entrega el cliente antes de desarrollar una forma, con dos diferencias: vive dentro del repositorio junto al código, y se mantiene actualizado al terminar cada cambio. No se queda viejo en una carpeta compartida.</p>
+  </div>
+
+  <p class="quiz-title">Repaso</p>
+  <details class="quiz"><summary>¿Cuál es la diferencia entre la spec y el design?</summary>
+    <p>La spec dice <strong>qué</strong> debe pasar, en términos que un usuario o cliente entiende ("un estudiante no inscrito no puede leer la lección"). El design dice <strong>cómo</strong> se logra ("tabla <code>lesson_contents</code> separada con una política RLS"). Puedes cambiar el design sin tocar la spec, y eso es buena señal.</p>
+  </details>
+  <details class="quiz"><summary>¿Cuándo NO vale la pena usar SDD?</summary>
+    <p>En un script de una sola vez, un prototipo para tirar o un cambio de una línea. La planificación tiene un costo; se paga sola cuando el sistema va a vivir, crecer o pasar por varias sesiones de trabajo.</p>
+  </details>
+</section>
+
+<!-- ============ 02 ============ -->
+<section class="cap prose" id="mapa">
+  <p class="cap-eyebrow"><b>Capítulo 02</b> · Estructura</p>
+  <h2>El mapa de OpenSpec</h2>
+
+  <p>OpenSpec es una herramienta de línea de comandos (<code>@fission-ai/openspec</code>, en este proyecto la versión 1.15.0) más un conjunto de comandos y skills para el agente. Al ejecutar <code>openspec init</code> en un proyecto se crea esta estructura:</p>
+
+<pre><code>openspec/
+├── config.yaml              <span class="c"># personalización del proyecto (lo único que editas)</span>
+├── specs/                   <span class="c"># LA VERDAD ACTUAL: qué hace el sistema hoy</span>
+│   ├── user-access/spec.md
+│   ├── course-catalog/spec.md
+│   └── ...
+└── changes/                 <span class="c"># propuestas en curso</span>
+    ├── &lt;nombre-del-cambio&gt;/
+    │   ├── .openspec.yaml   <span class="c"># metadatos (schema, skip_specs...)</span>
+    │   ├── proposal.md
+    │   ├── design.md
+    │   ├── tasks.md
+    │   └── specs/           <span class="c"># DELTAS: lo que este cambio agrega o modifica</span>
+    └── archive/             <span class="c"># cambios terminados, con fecha</span>
+        └── 2026-10-26-create-course-platform/
+
+.claude/
+├── commands/opsx/           <span class="c"># /opsx:explore, propose, apply, archive, sync, update</span>
+└── skills/openspec-*/       <span class="c"># las instrucciones que sigue el agente</span></code></pre>
+
+  <h3>Dos ideas que lo explican todo</h3>
+  <p><strong><code>specs/</code> es el presente.</strong> Describe lo que el sistema hace hoy, organizado por capacidad (<code>course-enrollment</code>, <code>course-reviews</code>...). No tiene historia ni planes: solo el estado actual.</p>
+  <p><strong><code>changes/</code> es el futuro.</strong> Cada cambio trae <em>deltas</em>: secciones <code>ADDED</code>, <code>MODIFIED</code>, <code>REMOVED</code> o <code>RENAMED</code> que dicen cómo se transformará <code>specs/</code>. Al archivar, los deltas se fusionan con <code>specs/</code> y el cambio pasa a <code>archive/</code>.</p>
+
+  <h3>¿Qué se personaliza y qué no se toca?</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Archivo</th><th>¿Lo editas?</th><th>Por qué</th></tr></thead>
+    <tbody>
+      <tr><td><code>.claude/commands/opsx/*</code><br><code>.claude/skills/openspec-*</code></td><td><strong>No</strong></td><td>Los genera la herramienta. <code>openspec update</code> los regenera y perderías tus cambios.</td></tr>
+      <tr><td><code>openspec/config.yaml</code></td><td><strong>Sí</strong></td><td>Es el punto de personalización oficial: contexto del proyecto y reglas por artefacto.</td></tr>
+      <tr><td><code>openspec/specs/</code> y <code>changes/</code></td><td>Sí, con el flujo</td><td>Son tu contenido. Se crean con los comandos y se revisan a mano.</td></tr>
+    </tbody>
+  </table></div>
+
+  <p>En este proyecto dejamos <code>config.yaml</code> con lo mínimo (<code>schema: spec-driven</code>). En un proyecto de cliente conviene llenarlo. Ejemplo para un proyecto tuyo de Angular + .NET:</p>
+<p class="file">openspec/config.yaml</p>
+<pre><code><span class="k">schema:</span> spec-driven
+
+<span class="k">context:</span> |
+  Escribe todos los artefactos en español.
+  Frontend Angular 19 con standalone components y signals; backend .NET 8 con EF Core.
+  Base de datos Oracle 19c: la autorización por fila se hace con VPD.
+  El cliente exige compatibilidad con Edge y Chrome.
+
+<span class="k">rules:</span>
+  <span class="k">proposal:</span>
+    - Indica siempre qué queda fuera de alcance
+  <span class="k">tasks:</span>
+    - Cada tarea termina con "verificar ..." y el comando o prueba que la comprueba
+    - Ninguna tarea debe tomar más de 2 horas</code></pre>
+
+  <div class="note good">
+    <span class="note-label">Buena práctica</span>
+    <p>En <code>context</code> pon solo lo que el agente <strong>no puede deducir leyendo el código</strong>: restricciones del cliente, idioma, versiones obligatorias. Lo que ya está en <code>package.json</code> sobra.</p>
+  </div>
+
+  <p class="quiz-title">Repaso</p>
+  <details class="quiz"><summary>Si quieres que todas las propuestas se escriban en español, ¿dónde lo pones?</summary>
+    <p>En <code>openspec/config.yaml</code>, dentro de <code>context</code>. Nunca editando los skills o comandos, porque <code>openspec update</code> los sobrescribe.</p>
+  </details>
+</section>
+
+<!-- ============ 03 ============ -->
+<section class="cap" id="ciclo">
+  <div class="prose">
+  <p class="cap-eyebrow"><b>Capítulo 03</b> · Flujo</p>
+  <h2>El ciclo completo</h2>
+  <p>Cuatro comandos llevan una idea hasta código archivado. Este es el recorrido exacto que hicimos.</p>
+  </div>
+
+  <div class="figure">
+    <svg viewBox="0 0 900 230" role="img" aria-label="Ciclo explore, propose, apply, archive">
+      <defs>
+        <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" class="arrow-head"/>
+        </marker>
+      </defs>
+      <rect x="10" y="30" width="190" height="110" rx="10" class="box"/>
+      <text x="30" y="62" class="t-title">Explorar</text>
+      <text x="30" y="84" class="t-cmd">/opsx:explore</text>
+      <text x="30" y="110" class="t-small">pensar, preguntar,</text>
+      <text x="30" y="126" class="t-small">sin escribir código</text>
+
+      <rect x="240" y="30" width="190" height="110" rx="10" class="box-accent"/>
+      <text x="260" y="62" class="t-title">Proponer</text>
+      <text x="260" y="84" class="t-cmd">/opsx:propose</text>
+      <text x="260" y="110" class="t-small">proposal · specs</text>
+      <text x="260" y="126" class="t-small">design · tasks</text>
+
+      <rect x="470" y="30" width="190" height="110" rx="10" class="box"/>
+      <text x="490" y="62" class="t-title">Implementar</text>
+      <text x="490" y="84" class="t-cmd">/opsx:apply</text>
+      <text x="490" y="110" class="t-small">tarea → código →</text>
+      <text x="490" y="126" class="t-small">verificar → [x]</text>
+
+      <rect x="700" y="30" width="190" height="110" rx="10" class="box"/>
+      <text x="720" y="62" class="t-title">Archivar</text>
+      <text x="720" y="84" class="t-cmd">/opsx:archive</text>
+      <text x="720" y="110" class="t-small">deltas → specs/</text>
+      <text x="720" y="126" class="t-small">cambio → archive/</text>
+
+      <line x1="200" y1="85" x2="236" y2="85" class="arrow" marker-end="url(#ah)"/>
+      <line x1="430" y1="85" x2="466" y2="85" class="arrow" marker-end="url(#ah)"/>
+      <line x1="660" y1="85" x2="696" y2="85" class="arrow" marker-end="url(#ah)"/>
+
+      <path d="M565,140 C565,200 335,200 335,144" class="arrow" marker-end="url(#ah)"/>
+      <text x="380" y="214" class="t-small">/opsx:update si la realidad contradice el plan</text>
+    </svg>
+    <p class="figcap">El regreso de "Implementar" a "Proponer" no es un fracaso: es el flujo normal cuando aparece algo que el plan no previó.</p>
+  </div>
+
+  <div class="prose">
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div>
+      <h4>Explorar: entender antes de comprometerse</h4>
+      <p>Empezamos con <code>/opsx:explore</code> y una frase vaga: <em>"quiero una plataforma de cursos con roles instructor y estudiante"</em>. En modo explore el agente lee, pregunta y dibuja, pero <strong>no escribe código</strong>. De ahí salió la decisión de negocio más importante del proyecto: <strong>una academia curada</strong>, donde el admin decide quién enseña, en lugar de un marketplace abierto. Esa sola frase cambió el modelo de roles completo.</p>
+    </div></div>
+    <div class="step"><div class="step-num">2</div><div>
+      <h4>Proponer: el plan completo en un paso</h4>
+      <p>Con la idea clara: <code>/opsx:propose crear la plataforma educativa: catálogo de cursos publicados, inscripción de estudiantes, gestión de cursos y lecciones por el instructor, y reseñas. Stack Next.js + Supabase con autorización por RLS. Yo decido quién enseña.</code></p>
+      <p>El agente generó <code>proposal.md</code>, 5 specs delta, <code>design.md</code> con 13 decisiones y <code>tasks.md</code> con 40 tareas en 8 grupos. <strong>Tu trabajo aquí es leer y corregir</strong>: este es el momento más barato para cambiar de opinión.</p>
+    </div></div>
+    <div class="step"><div class="step-num">3</div><div>
+      <h4>Implementar: tarea por tarea, con evidencia</h4>
+      <p><code>/opsx:apply</code> toma cada tarea pendiente, la implementa, ejecuta su verificación y solo entonces marca <code>- [x]</code>. Hicimos un commit por grupo (25 commits en total). Cuando algo no encajaba (no había Docker, el advisor de seguridad marcó funciones), el agente <strong>se detuvo y actualizó el design</strong> antes de seguir.</p>
+      <p>Después vino la prueba manual guiada, un paso a la vez, que encontró 4 bugs que ninguna prueba automática vio.</p>
+    </div></div>
+    <div class="step"><div class="step-num">4</div><div>
+      <h4>Archivar: actualizar la verdad</h4>
+      <p><code>/opsx:archive</code> revisó que las 40 tareas estuvieran completas, comparó cada delta con <code>specs/</code> (no existían: proyecto nuevo) y ofreció sincronizar. Resultado: 5 specs principales en <code>openspec/specs/</code> y el cambio movido a <code>archive/2026-10-26-create-course-platform/</code>.</p>
+    </div></div>
+  </div>
+
+  <h3>Los otros dos comandos</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Comando</th><th>Cuándo usarlo</th></tr></thead>
+    <tbody>
+      <tr><td><code>/opsx:update</code></td><td>Cambiaste de opinión o la implementación reveló algo: revisa los artefactos del cambio y los mantiene coherentes entre sí. Nunca toca código.</td></tr>
+      <tr><td><code>/opsx:sync</code></td><td>Quieres llevar los deltas a <code>specs/</code> sin archivar todavía (por ejemplo, porque otro cambio en paralelo necesita ver la spec actualizada).</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Comandos útiles de la CLI</h3>
+<pre><code>openspec list                 <span class="c"># cambios en curso y su avance de tareas</span>
+openspec list --specs         <span class="c"># capacidades actuales</span>
+openspec show course-enrollment --type spec
+openspec validate --strict    <span class="c"># revisa formato de specs y cambios</span>
+openspec view                 <span class="c"># tablero interactivo</span></code></pre>
+
+  <div class="note warn">
+    <span class="note-label">Error común</span>
+    <p>Pedirle al agente "implementa todo" sin leer el plan. El propose genera un documento convincente, y por eso mismo es fácil aprobarlo sin pensar. Lee al menos los requisitos y las decisiones de diseño: ahí están las suposiciones que luego te cuestan caro.</p>
+  </div>
+
+  <p class="quiz-title">Repaso</p>
+  <details class="quiz"><summary>¿Por qué explore no escribe código aunque se lo pidas?</summary>
+    <p>Porque su trabajo es pensar. Si escribiera código, las decisiones quedarían en el código y no en un artefacto revisable. Cuando la idea está lista, el paso siguiente es <code>/opsx:propose</code>.</p>
+  </details>
+  <details class="quiz"><summary>¿Qué pasa con las specs delta al archivar?</summary>
+    <p>Se fusionan con <code>openspec/specs/</code>: los requisitos <code>ADDED</code> se agregan, los <code>MODIFIED</code> reemplazan al anterior, los <code>REMOVED</code> se quitan y los <code>RENAMED</code> cambian de nombre. Luego el cambio completo se mueve a <code>archive/</code> con la fecha.</p>
+  </details>
+  </div>
+</section>
+
+<!-- ============ 04 ============ -->
+<section class="cap prose" id="artefactos">
+  <p class="cap-eyebrow"><b>Capítulo 04</b> · Escritura</p>
+  <h2>Cómo escribir cada artefacto</h2>
+
+  <h3>proposal.md: el porqué</h3>
+  <p>Cuatro secciones: <strong>Why</strong> (el problema de negocio), <strong>What Changes</strong> (lo que se agrega en viñetas), <strong>Capabilities</strong> (las specs que se crean o modifican) e <strong>Impact</strong> (código, base de datos, dependencias, configuración). La frase que más valor dio en nuestra propuesta fue la de <strong>fuera de alcance</strong>:</p>
+  <p class="file">proposal.md</p>
+<pre><code>Fuera de alcance en este cambio (cambios futuros): pagos y precios, video subido
+a storage propio (solo URL embebida), progreso por lección, certificados, cupones,
+preguntas al instructor y pagos a instructores.</code></pre>
+  <p>Sin esa línea, el agente (o el cliente) asume que "estilo Udemy" incluye pagos.</p>
+
+  <h3>spec.md: requisitos y escenarios</h3>
+  <p>Cada capacidad tiene un <code>## Purpose</code> y una lista de requisitos. Cada requisito usa <strong>MUST / MUST NOT</strong> (o SHALL) y al menos un escenario con <strong>WHEN</strong> (la situación) y <strong>THEN</strong> (el resultado observable).</p>
+  <p class="file">openspec/specs/course-enrollment/spec.md</p>
+<pre><code><span class="k">### Requirement: Acceso al contenido de las lecciones</span>
+El contenido de una lección MUST ser accesible solo para los estudiantes inscritos
+en su curso y para el dueño del curso. Cualquier otro usuario MUST NOT poder
+leerlo por ninguna vía.
+
+<span class="k">#### Scenario: Usuario no inscrito intenta leer una lección</span>
+- <span class="k">WHEN</span> un usuario no inscrito intenta abrir una lección o consultar su contenido directamente
+- <span class="k">THEN</span> el sistema no entrega el contenido y lo redirige a la ficha del curso</code></pre>
+
+  <p>Fíjate en <em>"por ninguna vía"</em> y <em>"consultar su contenido directamente"</em>: esas palabras obligaron a que la protección viviera en la base de datos (RLS) y no solo en la página. Una spec bien escrita empuja el diseño correcto.</p>
+
+  <h4>Reglas para escribir buenos requisitos</h4>
+  <ul>
+    <li><strong>Describe comportamiento, no implementación.</strong> "El sistema no crea una segunda inscripción", no "hay un UNIQUE en enrollments".</li>
+    <li><strong>Incluye los casos negativos.</strong> La mitad de nuestros escenarios empiezan con "intenta...": son los que protegen el sistema.</li>
+    <li><strong>El THEN debe ser verificable.</strong> "Funciona bien" no se puede probar; "la ficha pasa a mostrar Ir al curso" sí.</li>
+    <li><strong>Un requisito, una idea.</strong> Si necesitas "y además", probablemente son dos requisitos.</li>
+  </ul>
+
+  <h4>Los deltas en cambios futuros</h4>
+  <p>Cuando ya existen specs, un cambio no las reescribe: declara qué pasa con cada requisito.</p>
+<pre><code><span class="k">## ADDED Requirements</span>        <span class="c"># requisitos nuevos completos</span>
+<span class="k">## MODIFIED Requirements</span>     <span class="c"># el requisito completo, en su nueva versión</span>
+<span class="k">## REMOVED Requirements</span>      <span class="c"># con razón y plan de migración</span>
+<span class="k">## RENAMED Requirements</span>      <span class="c"># FROM: nombre viejo / TO: nombre nuevo</span></code></pre>
+  <p>Ejemplo pendiente de este proyecto: "que el buscador también encuentre cursos por nombre de categoría" sería un <code>MODIFIED</code> del requisito de búsqueda en <code>course-catalog</code>.</p>
+
+  <h3>design.md: decisiones con alternativas</h3>
+  <p>Cada decisión tiene un nombre (D1, D2...), qué se decide, <strong>por qué</strong> y qué <strong>alternativa se descartó</strong>. La alternativa descartada es lo que más valor tiene a futuro: evita que alguien "mejore" el sistema con la idea que ya se evaluó y se rechazó.</p>
+  <p class="file">design.md · D2</p>
+<pre><code><span class="k">### D2. Un solo rol por usuario en profiles.role</span>
+- Por qué: los requisitos no piden que alguien tenga varios roles a la vez,
+  y una columna simplifica todas las políticas.
+- Alternativa descartada: guardar el rol en los JWT custom claims. Es más rápido
+  de evaluar, pero un cambio de rol no se refleja hasta que se refresca el token,
+  y el spec exige que la degradación sea efectiva en la siguiente navegación.</code></pre>
+  <p>Observa cómo la alternativa se descartó <strong>por un requisito concreto de la spec</strong>. Así se conectan los artefactos.</p>
+
+  <h3>tasks.md: pasos verificables</h3>
+  <p>Cada tarea dice qué construir <strong>y cómo se comprueba</strong>. Esta es la regla que más diferencia a un plan útil de una lista de deseos.</p>
+  <p class="file">tasks.md · 5.1</p>
+<pre><code>- [x] 5.1 Migración: tabla enrollments con UNIQUE (user_id, course_id) y FK
+      ON DELETE RESTRICT, función is_enrolled(), política INSERT que exige curso
+      publicado y no propio [...]; <span class="k">verificar con pgTAP</span> inscripción duplicada,
+      borrador, curso propio y borrado de curso con inscritos, todos rechazados</code></pre>
+
+  <div class="note bad">
+    <span class="note-label">Tareas que no sirven</span>
+    <p>"Explorar el código", "Hacer el backend", "Pruebas". No tienen criterio de terminado, así que el agente (o tú) las marcará como hechas cuando se canse, no cuando estén bien.</p>
+  </div>
+
+  <p class="quiz-title">Repaso</p>
+  <details class="quiz"><summary>Reescribe este requisito malo: "La inscripción debe validarse correctamente".</summary>
+    <p>"Un usuario MUST NOT poder inscribirse dos veces en el mismo curso." Con el escenario: WHEN un usuario ya inscrito intenta inscribirse de nuevo, THEN el sistema no crea una segunda inscripción.</p>
+  </details>
+  <details class="quiz"><summary>¿Por qué el design guarda las alternativas descartadas?</summary>
+    <p>Para que dentro de seis meses nadie repita una discusión ya resuelta, y para que si cambia la condición que llevó a descartarla (por ejemplo, el requisito), se sepa exactamente qué decisión revisar.</p>
+  </details>
+</section>
+
+<!-- ============ 05 ============ -->
+<section class="cap prose" id="pruebas">
+  <p class="cap-eyebrow"><b>Capítulo 05</b> · Verificación</p>
+  <h2>Pruebas</h2>
+
+  <p>En SDD las pruebas no son una fase al final: cada tarea ya dice cómo se verifica. Usamos tres capas, cada una atrapa errores distintos.</p>
+
+  <div class="table-wrap"><table>
+    <thead><tr><th>Capa</th><th>Herramienta</th><th>Qué prueba</th><th>Volumen</th></tr></thead>
+    <tbody>
+      <tr><td>Base de datos</td><td>pgTAP</td><td>Políticas RLS, triggers, constraints, RPCs: quién puede leer o escribir qué</td><td>107 aserciones en 7 archivos</td></tr>
+      <tr><td>Lógica</td><td>Vitest</td><td>Esquemas Zod, generador de slug, validador de URLs de video, redirecciones seguras</td><td>43 pruebas</td></tr>
+      <tr><td>Integración</td><td>Manual guiada</td><td>Flujos completos con tres usuarios reales en el navegador</td><td>Recorrido de punta a punta</td></tr>
+      <tr><td>Estática</td><td><code>tsc</code>, ESLint, <code>next build</code></td><td>Tipos, estilo, que la app compile</td><td>En cada grupo de tareas</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Del escenario a la prueba</h3>
+  <p>Este es el puente que hace poderoso a SDD: el escenario de la spec y la prueba dicen lo mismo con dos lenguajes.</p>
+
+  <div class="scenario">
+    <div class="scenario-head">#### Scenario: Instructor intenta inscribirse en su propio curso</div>
+    <div class="scenario-row"><b>WHEN</b><span>el dueño de un curso intenta inscribirse en él</span></div>
+    <div class="scenario-row"><b>THEN</b><span>el sistema rechaza la inscripción</span></div>
+  </div>
+  <p class="file">supabase/tests/040_enrollment.test.sql</p>
+<pre><code>select pg_temp.login_as((select id from _ids where name = 'inst'));
+insert into _tap(line) select <span class="k">throws_ok</span>(
+  format('insert into public.enrollments (user_id, course_id) values (%L, %L)',
+         (select id from _ids where name = 'inst'), (select id from _ids where name = 'pub')),
+  <span class="k">'42501'</span>, null, 'el dueno no puede inscribirse en su propio curso');</code></pre>
+  <p><code>login_as</code> simula a un usuario concreto; <code>throws_ok</code> exige que la base rechace la operación con el código <code>42501</code> (permiso denegado). Si mañana alguien relaja la política, esta prueba falla.</p>
+
+  <h3>Probar permisos: simular cada rol</h3>
+  <p>Creamos helpers en <code>supabase/tests/_helpers.sql</code>:</p>
+  <ul>
+    <li><code>pg_temp.create_user(email)</code>: crea un usuario de prueba (el trigger le crea su perfil de estudiante).</li>
+    <li><code>pg_temp.login_as(id)</code>: cambia al rol <code>authenticated</code> con el JWT de ese usuario.</li>
+    <li><code>pg_temp.login_anon()</code>: simula un visitante sin sesión.</li>
+  </ul>
+  <p>Así cada escenario "intenta... y el sistema rechaza" se prueba con el usuario exacto que lo intentaría.</p>
+
+  <h3>El runner propio, sin Docker</h3>
+  <p>El comando estándar <code>supabase test db</code> necesita Docker, y tu equipo no lo tiene. En lugar de instalar 4 GB de Docker, construimos <code>scripts/test-db.mjs</code> (<code>npm run test:db</code>): toma cada archivo, le antepone los helpers, lo envuelve en <code>begin ... rollback</code> para no dejar datos y lo ejecuta contra la base remota. Falla si alguna línea es <code>not ok</code> o si el número de pruebas no coincide con el plan.</p>
+
+  <h3>Los 4 bugs que solo vio la prueba manual</h3>
+  <p>Con 150 pruebas automáticas en verde, el recorrido manual encontró cuatro errores reales:</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Bug</th><th>Causa</th><th>Qué prueba lo habría atrapado</th></tr></thead>
+    <tbody>
+      <tr><td>Los formularios se vaciaban al fallar la validación</td><td>React 19 reinicia el formulario después de una Server Action</td><td>E2E: llenar con error y comprobar que los valores siguen</td></tr>
+      <tr><td>Página en blanco después del login</td><td>Redirecciones encadenadas desde una Server Action</td><td>E2E: iniciar sesión y esperar el contenido</td></tr>
+      <tr><td>El catálogo fallaba tras cerrar sesión</td><td>Al visitante (<code>anon</code>) le faltaba un GRANT en <code>enrollments</code></td><td>pgTAP como <code>anon</code> sobre la vista del catálogo (agregada después)</td></tr>
+      <tr><td>Los mensajes desplazaban los botones</td><td>Diseño del componente</td><td>Revisión visual (Playwright con capturas)</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="note good">
+    <span class="note-label">Prueba de regresión</span>
+    <p>Para el bug del catálogo, primero agregamos la prueba que lo reproducía como <code>anon</code> (falló), luego la migración que lo corrige (pasó). Ese bug ya no puede volver sin que una prueba lo diga.</p>
+  </div>
+
+  <div class="note warn">
+    <span class="note-label">La lección</span>
+    <p>Las pruebas automáticas verifican lo que se te ocurrió probar. La prueba manual (o E2E) verifica lo que el usuario realmente hace. En el próximo proyecto agrega pruebas E2E con Playwright para los flujos principales desde el plan.</p>
+  </div>
+
+  <h3>Evidencia antes de afirmar</h3>
+  <p>Ninguna tarea se marcó como hecha sin ejecutar su verificación. La tarea 8.2 lo resume:</p>
+<pre><code>npm run lint &amp;&amp; npx tsc --noEmit &amp;&amp; npx vitest run &amp;&amp; npm run build
+npm run test:db</code></pre>
+
+  <p class="quiz-title">Repaso</p>
+  <details class="quiz"><summary>¿Por qué probar RLS en la base y no desde la interfaz?</summary>
+    <p>Porque la interfaz no es la única puerta: cualquiera con la <code>anon key</code> puede llamar a la API de Supabase directamente. Si la regla falla en la base, la UI no te protege.</p>
+  </details>
+  <details class="quiz"><summary>¿Qué hace que una prueba sea "de regresión"?</summary>
+    <p>Reproduce un bug real que ya ocurrió. Se escribe antes del arreglo (debe fallar), se arregla, y queda para siempre en la suite.</p>
+  </details>
+</section>
+
+<!-- ============ 06 ============ -->
+<section class="cap prose" id="seguridad">
+  <p class="cap-eyebrow"><b>Capítulo 06</b> · Protección</p>
+  <h2>Seguridad</h2>
+
+  <p>La regla base del proyecto, escrita en el design: <strong>la UI solo refleja permisos, no los garantiza</strong>. Cualquier usuario puede abrir las herramientas del navegador, copiar la <code>anon key</code> y llamar a la API sin pasar por tus páginas.</p>
+
+  <h3>Seguridad desde la spec</h3>
+  <p>La seguridad no se agrega al final: se escribe como requisito con sus escenarios negativos. Cada "intenta... y el sistema rechaza" de las specs se convirtió en una política, un constraint o un trigger, y luego en una prueba pgTAP. De los 107 asserts, la mayoría prueban <strong>lo que NO debe pasar</strong>.</p>
+
+  <h3>Defensa en capas</h3>
+  <div class="layers">
+    <div class="layer"><div><b>Middleware</b><small>middleware.ts</small></div><p>Redirige si no tienes el rol para <code>/instructor</code> o <code>/admin</code>. <strong>Es experiencia de usuario, no seguridad</strong>: solo evita mostrar páginas que fallarían.</p></div>
+    <div class="layer"><div><b>Validación</b><small>Zod en Server Actions</small></div><p>Rechaza datos mal formados con mensajes claros. Se valida en el servidor, nunca solo en el navegador.</p></div>
+    <div class="layer"><div><b>GRANT</b><small>privilegios de tabla y columna</small></div><p>Decide si un rol puede tocar la tabla (o la columna) en absoluto.</p></div>
+    <div class="layer core"><div><b>RLS</b><small>políticas por fila</small></div><p>Decide <em>qué filas</em> ve o modifica cada usuario. Aquí vive la seguridad real.</p></div>
+    <div class="layer"><div><b>Constraints y triggers</b><small>reglas de negocio</small></div><p>Invariantes que ninguna ruta puede saltarse: una inscripción por curso, no publicar sin lecciones.</p></div>
+  </div>
+
+  <h3>Cinco técnicas que usamos</h3>
+
+  <h4>1. Nadie se autoasigna admin</h4>
+  <p>Al registrarse, un trigger crea el perfil <strong>siempre</strong> como estudiante e ignora cualquier rol que venga en los datos del registro:</p>
+  <p class="file">supabase/migrations/20261024000100_profiles_and_roles.sql</p>
+<pre><code>create function public.handle_new_user()
+returns trigger language plpgsql
+<span class="k">security definer</span>
+<span class="k">set search_path = ''</span>
+as $$
+begin
+  insert into public.profiles (id, display_name, role)
+  values (new.id, ..., <span class="k">'student'</span>);   <span class="c">-- fijo, nunca desde metadata</span>
+  ...</code></pre>
+
+  <h4>2. Privilegios por columna</h4>
+  <p>Una política RLS de UPDATE permite o niega la <em>fila</em> completa; no puede impedir que el usuario cambie una columna específica de su propio perfil. La solución es combinar RLS con GRANT por columna:</p>
+<pre><code>revoke insert, update, delete on public.profiles from anon, authenticated;
+grant update (display_name, bio) on public.profiles to authenticated;
+<span class="c">-- role no aparece: nadie puede actualizarlo desde la API</span></code></pre>
+  <p>El rol solo cambia con la función <code>set_instructor_role</code>, que verifica que quien la llama sea admin.</p>
+
+  <h4>3. Funciones SECURITY DEFINER en un esquema privado</h4>
+  <p>Las funciones auxiliares (<code>is_enrolled</code>, <code>owns_course</code>...) corren con permisos de su dueño para evitar recursión entre políticas. Eso las hace poderosas, así que llevan tres protecciones:</p>
+  <ul>
+    <li><code>set search_path = ''</code> y nombres calificados (<code>public.enrollments</code>): nadie puede inyectar una tabla falsa con el mismo nombre.</li>
+    <li>Viven en el esquema <code>private</code>, que la API no expone. En <code>public</code>, el Security Advisor de Supabase las marcó como endpoints que cualquiera podía invocar.</li>
+    <li><code>revoke execute ... from public</code> y <code>grant</code> solo a los roles que las necesitan.</li>
+  </ul>
+
+  <h4>4. GRANT y RLS son capas distintas</h4>
+  <p>El bug más instructivo del proyecto. La migración de inscripciones decía <code>revoke all on public.enrollments from anon;</code>. Tenía sentido: un visitante no debe ver inscripciones. Pero la vista del catálogo (con <code>security_invoker = true</code>) cuenta inscritos con una subconsulta a <code>enrollments</code>, y un visitante sin GRANT recibió <code>42501 permission denied</code>: el catálogo se caía al cerrar sesión.</p>
+  <p class="file">supabase/migrations/20261025000100_anon_can_query_catalog_view.sql</p>
+<pre><code><span class="c">-- No expone datos: ninguna política RLS de enrollments aplica a anon, así que ve 0 filas.</span>
+grant select on public.enrollments to anon;</code></pre>
+  <div class="note real">
+    <span class="note-label">La idea clave</span>
+    <p><strong>GRANT</strong> responde "¿puedes consultar esta tabla?". <strong>RLS</strong> responde "¿qué filas te tocan?". Con GRANT y sin políticas que apliquen, el visitante consulta y obtiene cero filas: seguro y sin errores.</p>
+  </div>
+  <div class="note warn">
+    <span class="note-label">Diagnosticar con datos</span>
+    <p>El primer diagnóstico de este bug (cookies de sesión) fue equivocado. Lo que lo resolvió fue agregar un <code>console.error</code> que mostró el código real <code>42501</code>. Antes de arreglar, mide.</p>
+  </div>
+
+  <h4>5. Seguridad en la aplicación</h4>
+  <ul>
+    <li><strong>XSS:</strong> el contenido de las lecciones se muestra con <code>react-markdown</code>, que no renderiza HTML crudo. Un instructor no puede inyectar <code>&lt;script&gt;</code>.</li>
+    <li><strong>Redirección abierta:</strong> <code>safeNextPath</code> solo acepta rutas internas en <code>?next=</code>, así nadie usa tu login para mandar a un usuario a un sitio falso.</li>
+    <li><strong>Datos de entrada:</strong> URLs de video limitadas a YouTube y Vimeo con un <code>CHECK</code> en la base y validación Zod en el formulario.</li>
+  </ul>
+
+  <h3>Secretos</h3>
+  <ul>
+    <li><code>.env.local</code> está en <code>.gitignore</code>; <code>.env.example</code> es la plantilla sin valores que sí va a git.</li>
+    <li>La <code>service_role</code> key salta todo RLS: <strong>nunca</strong> va al frontend ni al repositorio. En este proyecto ni siquiera se usa.</li>
+    <li>La contraseña de la base nunca se pega en el chat con la IA.</li>
+    <li>Una regla de permisos impide que el agente lea tus archivos <code>.env*</code>. Seguridad también frente a tu propio asistente: el agente no necesita ver secretos para trabajar.</li>
+  </ul>
+
+  <h3>Cómo se traduce a tus otros stacks</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Concepto aquí</th><th>Oracle</th><th>.NET</th><th>Angular</th></tr></thead>
+    <tbody>
+      <tr><td>RLS</td><td>VPD (<code>DBMS_RLS.ADD_POLICY</code>)</td><td>Filtros globales de EF Core (<code>HasQueryFilter</code>) + policies de autorización</td><td>No aplica: el cliente nunca es la seguridad</td></tr>
+      <tr><td>GRANT por columna</td><td><code>GRANT UPDATE (col) ON tabla</code></td><td>DTOs que no exponen el campo</td><td>—</td></tr>
+      <tr><td>SECURITY DEFINER</td><td><code>AUTHID DEFINER</code> en packages</td><td>Servicio con cuenta de sistema</td><td>—</td></tr>
+      <tr><td>Middleware por rol</td><td>Menús por rol en Forms</td><td><code>[Authorize(Roles=...)]</code></td><td>Guards (solo UX)</td></tr>
+      <tr><td>Validación Zod</td><td>Triggers / constraints</td><td>FluentValidation / DataAnnotations</td><td>Validators de formularios</td></tr>
+    </tbody>
+  </table></div>
+
+  <p class="quiz-title">Repaso</p>
+  <details class="quiz"><summary>Si un guard de Angular bloquea /admin, ¿está protegido el panel?</summary>
+    <p>No. El guard solo evita mostrar la página. Las APIs que usa el panel deben verificar el rol en el servidor (o en la base) por su cuenta.</p>
+  </details>
+  <details class="quiz"><summary>¿Por qué <code>search_path = ''</code> en funciones SECURITY DEFINER?</summary>
+    <p>Porque esas funciones corren con más permisos que quien las llama. Si buscan tablas por nombre sin esquema, un atacante podría crear un objeto con ese nombre en un esquema que se busque primero. Con el path vacío y nombres calificados, siempre usan la tabla correcta.</p>
+  </details>
+</section>
+
+<!-- ============ 07 ============ -->
+<section class="cap prose" id="realidad">
+  <p class="cap-eyebrow"><b>Capítulo 07</b> · Adaptación</p>
+  <h2>Cuando la realidad contradice el plan</h2>
+
+  <p>Ningún plan sobrevive intacto. La diferencia entre SDD bien y mal aplicado está en qué haces cuando eso pasa: <strong>actualizar el artefacto</strong> para que siga diciendo la verdad, en lugar de desviarte en silencio.</p>
+
+  <div class="table-wrap"><table>
+    <thead><tr><th>El plan decía</th><th>La realidad</th><th>Qué hicimos</th></tr></thead>
+    <tbody>
+      <tr><td>Probar con <code>supabase test db</code></td><td>Requiere Docker, que no está instalado</td><td>Runner propio; D12 actualizado con el porqué y la alternativa</td></tr>
+      <tr><td>Funciones auxiliares en <code>public</code></td><td>El Security Advisor las marcó como invocables por cualquiera</td><td>Migración nueva que las mueve a <code>private</code>; D4 actualizado</td></tr>
+      <tr><td>Categorías en <code>seed.sql</code></td><td>Son datos que también necesita producción</td><td>Se insertan en la migración que crea la tabla; D11 actualizado</td></tr>
+      <tr><td>Node instalado en el equipo (v20)</td><td><code>supabase-js</code> exige Node 22 o superior</td><td>Node 24 solo para este proyecto con fnm y <code>.node-version</code></td></tr>
+      <tr><td><code>z.email().trim()</code></td><td>Zod 4 valida antes de recortar espacios</td><td><code>z.string().trim().toLowerCase().pipe(z.email())</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Reglas que salen de aquí</h3>
+  <ul>
+    <li><strong>Nunca edites una migración ya aplicada.</strong> Crea una nueva. La base remota ya ejecutó la vieja; editarla deja el repositorio y la base contando historias distintas.</li>
+    <li><strong>Si la implementación contradice el design, el agente debe detenerse</strong> y proponer actualizar el artefacto. Una desviación silenciosa hace que el documento mienta.</li>
+    <li><strong>Documenta la alternativa que no pudiste usar.</strong> "Se puede migrar a <code>supabase test db</code> sin reescribir las pruebas" le dice al próximo qué hacer cuando haya Docker.</li>
+  </ul>
+
+  <p class="quiz-title">Repaso</p>
+  <details class="quiz"><summary>Descubres a mitad de la implementación que un requisito es imposible. ¿Qué haces?</summary>
+    <p>Pausas la implementación, usas <code>/opsx:update</code> (o editas el artefacto) para corregir spec, design y tareas de forma coherente, y retomas con <code>/opsx:apply</code>. No implementas "algo parecido" sin dejarlo escrito.</p>
+  </details>
+</section>
+
+<!-- ============ 08 ============ -->
+<section class="cap prose" id="agentic">
+  <p class="cap-eyebrow"><b>Capítulo 08</b> · Oficio</p>
+  <h2>Lecciones como AI Agentic Engineer</h2>
+
+  <p>El agente escribió casi todo el código. Tu valor estuvo en otra parte, y esa parte es la que te hace competitivo.</p>
+
+  <h3>1. Tú decides el negocio; el agente propone la técnica</h3>
+  <p>"Yo decido quién enseña" fue tuyo, y cambió el modelo de roles, las políticas y la administración. Ningún agente habría llegado ahí solo. Tu trabajo es tomar las decisiones que dependen del negocio y revisar las técnicas que el agente propone.</p>
+
+  <h3>2. Exige evidencia, no promesas</h3>
+  <p>"Ya quedó" no vale. Vale: el comando que se ejecutó y su salida. Pídelo siempre: <em>¿qué prueba corriste y qué devolvió?</em></p>
+
+  <h3>3. Un paso a la vez en lo manual</h3>
+  <p>Cuando recibiste 22 pasos de prueba de una vez, no avanzabas. Con uno por mensaje (qué hacer y qué debes ver) encontraste los 4 bugs. Pide el formato que te funciona: el agente se adapta.</p>
+
+  <h3>4. Dale ojos y memoria al agente</h3>
+  <ul>
+    <li><strong>Ojos:</strong> Playwright MCP le permite abrir la app, tomar capturas y probar flujos sin depender de tus pantallazos.</li>
+    <li><strong>Memoria:</strong> las specs, el design y una memoria de proyecto permiten retomar al día siguiente sin reconstruir el contexto.</li>
+  </ul>
+
+  <h3>5. Pon límites explícitos</h3>
+  <p>Reglas de permisos que bloquean <code>.env</code>, prohibición de usar la <code>service_role</code>, avisos antes de acciones riesgosas. Un buen agente con límites claros es más útil que uno sin ellos.</p>
+
+  <h3>6. Commits pequeños y descriptivos</h3>
+  <p>25 commits en español, uno por grupo de tareas o por bug corregido. Si algo se rompe, sabes exactamente qué cambió y cuándo.</p>
+
+  <h3>7. Desconfía de los diagnósticos fáciles</h3>
+  <p>El agente se equivocó con el bug del catálogo (dijo cookies; era un GRANT). Lo que funcionó fue agregar un log y mirar el error real. Cuando algo falla, pide datos antes que teorías.</p>
+</section>
+
+<!-- ============ 09 ============ -->
+<section class="cap prose" id="plantilla">
+  <p class="cap-eyebrow"><b>Capítulo 09</b> · Para tu próximo proyecto</p>
+  <h2>Plantillas y checklist</h2>
+
+  <h3>Arrancar un proyecto nuevo</h3>
+<pre><code>npm install -g @fission-ai/openspec@latest   <span class="c"># una vez por equipo</span>
+cd mi-proyecto
+openspec init                                 <span class="c"># elige tu agente (Claude Code, etc.)</span>
+<span class="c"># edita openspec/config.yaml: context y rules</span>
+git init &amp;&amp; git add . &amp;&amp; git commit -m "Inicializar OpenSpec"</code></pre>
+  <p>Luego en el agente:</p>
+<pre><code>/opsx:explore  &lt;la idea en una frase&gt;
+/opsx:propose  &lt;qué construir, stack, restricciones de negocio&gt;
+<span class="c"># lees y corriges los 4 artefactos</span>
+/opsx:apply
+<span class="c"># prueba manual guiada, un paso a la vez</span>
+/opsx:archive</code></pre>
+
+  <h3>Plantilla de requisito</h3>
+  <div class="tpl">
+<pre id="tpl-req"><code>### Requirement: &lt;Nombre corto en presente&gt;
+&lt;Quién&gt; MUST &lt;comportamiento observable&gt;. &lt;Quién&gt; MUST NOT &lt;lo prohibido&gt;.
+
+#### Scenario: &lt;Caso feliz&gt;
+- **WHEN** &lt;situación concreta&gt;
+- **THEN** &lt;resultado que se puede verificar&gt;
+
+#### Scenario: &lt;Intento no permitido&gt;
+- **WHEN** &lt;quién&gt; intenta &lt;acción prohibida&gt;
+- **THEN** el sistema rechaza &lt;acción&gt; y &lt;qué ve el usuario&gt;</code></pre>
+    <button class="btn" type="button" data-copy="tpl-req">Copiar</button>
+  </div>
+
+  <h3>Plantilla de decisión de diseño</h3>
+  <div class="tpl">
+<pre id="tpl-dec"><code>### D&lt;n&gt;. &lt;La decisión en una línea&gt;
+&lt;Qué se hace, con los nombres reales de tablas, componentes o servicios.&gt;
+- **Por qué**: &lt;el requisito o restricción que la justifica&gt;
+- **Alternativa descartada**: &lt;opción&gt;. &lt;Por qué no, citando el requisito si aplica&gt;
+- **Riesgo**: &lt;qué podría salir mal&gt; → &lt;cómo se mitiga&gt;</code></pre>
+    <button class="btn" type="button" data-copy="tpl-dec">Copiar</button>
+  </div>
+
+  <h3>Plantilla de tarea</h3>
+  <div class="tpl">
+<pre id="tpl-task"><code>- [ ] &lt;n.m&gt; &lt;Qué construir, concreto y acotado&gt; (&lt;decisión D# que aplica&gt;); verificar con &lt;prueba o comando&gt; que &lt;resultado esperado&gt;</code></pre>
+    <button class="btn" type="button" data-copy="tpl-task">Copiar</button>
+  </div>
+
+  <h3>Checklist del cambio</h3>
+  <p>Marca a medida que avanzas. Se guarda en este navegador.</p>
+  <div id="checklist">
+    <div class="check-group" data-group="explore">
+      <h4>Explorar <span></span></h4>
+      <label class="check"><input type="checkbox" id="c-e1"><span>Tengo claro el problema de negocio, no solo la solución técnica</span></label>
+      <label class="check"><input type="checkbox" id="c-e2"><span>Tomé las decisiones que solo yo puedo tomar (quién puede qué, qué queda fuera)</span></label>
+      <label class="check"><input type="checkbox" id="c-e3"><span>Revisé las specs existentes que el cambio podría tocar</span></label>
+    </div>
+    <div class="check-group" data-group="propose">
+      <h4>Proponer <span></span></h4>
+      <label class="check"><input type="checkbox" id="c-p1"><span>La propuesta dice explícitamente qué queda fuera de alcance</span></label>
+      <label class="check"><input type="checkbox" id="c-p2"><span>Cada requisito tiene escenarios negativos ("intenta... y el sistema rechaza")</span></label>
+      <label class="check"><input type="checkbox" id="c-p3"><span>Cada regla de permisos tiene una capa que la hace cumplir en el servidor o la base</span></label>
+      <label class="check"><input type="checkbox" id="c-p4"><span>Cada decisión del design tiene su porqué y una alternativa descartada</span></label>
+      <label class="check"><input type="checkbox" id="c-p5"><span>Cada tarea termina con "verificar ..." y la prueba o comando</span></label>
+      <label class="check"><input type="checkbox" id="c-p6"><span>El plan incluye pruebas E2E de los flujos principales</span></label>
+      <label class="check"><input type="checkbox" id="c-p7"><span>Corrí <code>openspec validate --strict</code></span></label>
+    </div>
+    <div class="check-group" data-group="apply">
+      <h4>Implementar <span></span></h4>
+      <label class="check"><input type="checkbox" id="c-a1"><span>Ninguna tarea se marcó sin ejecutar su verificación</span></label>
+      <label class="check"><input type="checkbox" id="c-a2"><span>Cada desviación del plan quedó escrita en el design</span></label>
+      <label class="check"><input type="checkbox" id="c-a3"><span>No edité migraciones ya aplicadas</span></label>
+      <label class="check"><input type="checkbox" id="c-a4"><span>Commit por grupo de tareas con mensaje descriptivo</span></label>
+      <label class="check"><input type="checkbox" id="c-a5"><span>Lint, tipos, pruebas y build en verde</span></label>
+    </div>
+    <div class="check-group" data-group="security">
+      <h4>Seguridad <span></span></h4>
+      <label class="check"><input type="checkbox" id="c-s1"><span>Ningún secreto en el código ni en git; existe <code>.env.example</code></span></label>
+      <label class="check"><input type="checkbox" id="c-s2"><span>Las claves con superpoderes (service_role, sysdba) nunca llegan al cliente</span></label>
+      <label class="check"><input type="checkbox" id="c-s3"><span>Toda tabla con datos de usuarios tiene autorización por fila (RLS o VPD)</span></label>
+      <label class="check"><input type="checkbox" id="c-s4"><span>Las columnas sensibles (rol, saldo, estado) no son editables desde la API</span></label>
+      <label class="check"><input type="checkbox" id="c-s5"><span>Funciones con privilegios elevados: search_path fijo y execute restringido</span></label>
+      <label class="check"><input type="checkbox" id="c-s6"><span>Contenido de usuarios se muestra sin HTML crudo; redirecciones solo internas</span></label>
+      <label class="check"><input type="checkbox" id="c-s7"><span>Corrí el advisor o escáner de seguridad de la plataforma</span></label>
+    </div>
+    <div class="check-group" data-group="archive">
+      <h4>Verificar y archivar <span></span></h4>
+      <label class="check"><input type="checkbox" id="c-v1"><span>Prueba manual de punta a punta con cada rol, un paso a la vez</span></label>
+      <label class="check"><input type="checkbox" id="c-v2"><span>Cada bug encontrado tiene su prueba de regresión</span></label>
+      <label class="check"><input type="checkbox" id="c-v3"><span>Archivé con sincronización de specs y revisé que <code>openspec/specs/</code> quedó correcto</span></label>
+    </div>
+    <button class="btn" type="button" id="reset-checks">Reiniciar checklist</button>
+  </div>
+</section>
+
+<!-- ============ 10 ============ -->
+<section class="cap prose" id="vision">
+  <p class="cap-eyebrow"><b>Capítulo 10</b> · Próximamente</p>
+  <h2>Rediseño con Claude Vision</h2>
+  <div class="soon">
+    <p>Este capítulo se escribe después de la clase <em>"De Boceto a Producto: Claude Vision convierte tus wireframes en interfaces reales"</em> (Módulo 3, Sesión 1), cuando hagamos el rediseño estilo Udemy de la plataforma.</p>
+    <p>Cubrirá: un cambio de OpenSpec solo visual (<code>skip_specs: true</code>), cómo preparar wireframes que la IA interprete bien, y el ciclo de comparar boceto, implementación y capturas de Playwright hasta que coincidan.</p>
+  </div>
+</section>
+
+<footer>
+  Manual OpenSpec Aplicado · basado en el proyecto <code>create-course-platform</code> · octubre de 2026
+</footer>
+
+</main>
+</div>
+
+<script>
+(() => {
+  // Indice activo segun la seccion visible
+  const links = [...document.querySelectorAll('.toc a')];
+  const byId = new Map(links.map(a => [a.getAttribute('href').slice(1), a]));
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          links.forEach(a => a.classList.remove('active'));
+          byId.get(e.target.id)?.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+    document.querySelectorAll('section.cap').forEach(s => io.observe(s));
+  }
+
+  // Botones de copiar plantillas
+  document.querySelectorAll('[data-copy]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const pre = document.getElementById(btn.dataset.copy);
+      const text = pre.innerText;
+      const done = () => { btn.textContent = 'Copiado'; setTimeout(() => (btn.textContent = 'Copiar'), 1500); };
+      const fallback = () => {
+        const range = document.createRange();
+        range.selectNodeContents(pre);
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+        btn.textContent = 'Usa Ctrl+C';
+      };
+      if (navigator.clipboard?.writeText) navigator.clipboard.writeText(text).then(done, fallback);
+      else fallback();
+    });
+  });
+
+  // Checklist con progreso por grupo, guardado en este navegador
+  const KEY = 'manual-openspec-checklist';
+  let state = {};
+  try { state = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch { state = {}; }
+  const boxes = [...document.querySelectorAll('#checklist input[type="checkbox"]')];
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch { /* sin almacenamiento */ } };
+  const refresh = () => {
+    document.querySelectorAll('.check-group').forEach(g => {
+      const inputs = [...g.querySelectorAll('input')];
+      const done = inputs.filter(i => i.checked).length;
+      g.querySelector('h4 span').textContent = `${done}/${inputs.length}`;
+    });
+  };
+  boxes.forEach(b => {
+    b.checked = !!state[b.id];
+    b.addEventListener('change', () => { state[b.id] = b.checked; save(); refresh(); });
+  });
+  document.getElementById('reset-checks').addEventListener('click', () => {
+    boxes.forEach(b => (b.checked = false));
+    state = {};
+    save();
+    refresh();
+  });
+  refresh();
+})();
+</script>
+</body>
+</html>

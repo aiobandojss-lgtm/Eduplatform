@@ -38,3 +38,6 @@ supabase/.temp
 
 # configuracion local de Claude Code
 .claude/settings.local.json
+
+# Capturas y logs de Playwright MCP
+.playwright-mcp/
