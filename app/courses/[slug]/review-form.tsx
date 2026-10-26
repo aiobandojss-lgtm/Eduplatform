@@ -1,9 +1,8 @@
 "use client";
 
-import { useActionState } from "react";
 import { ActionButton } from "@/components/action-button";
 import { FormMessage, SubmitButton, TextAreaField } from "@/components/form-fields";
-import type { FormState } from "@/lib/forms";
+import { useFormAction } from "@/lib/use-form-action";
 import { deleteReview, saveReview } from "./actions";
 
 type ExistingReview = { rating: number; comment: string | null };
@@ -17,7 +16,8 @@ export function ReviewForm({
   slug: string;
   existing: ExistingReview | null;
 }) {
-  const [state, action, pending] = useActionState<FormState, FormData>(saveReview, {});
+  const [state, action, pending] = useFormAction(saveReview, ["rating", "comment"]);
+  const rating = state.values?.rating ?? (existing ? String(existing.rating) : undefined);
 
   return (
     <div className="space-y-3 rounded-lg border border-neutral-200 bg-white p-5">
@@ -32,7 +32,7 @@ export function ReviewForm({
           <div className="flex gap-3">
             {[1, 2, 3, 4, 5].map((value) => (
               <label key={value} className="flex items-center gap-1 text-sm">
-                <input type="radio" name="rating" value={value} defaultChecked={existing?.rating === value} required />
+                <input type="radio" name="rating" value={value} defaultChecked={rating === String(value)} required />
                 {value} ★
               </label>
             ))}
@@ -45,7 +45,7 @@ export function ReviewForm({
           name="comment"
           rows={3}
           maxLength={2000}
-          defaultValue={existing?.comment ?? ""}
+          defaultValue={state.values?.comment ?? existing?.comment ?? ""}
           error={state.fieldErrors?.comment}
         />
         <SubmitButton pending={pending}>{existing ? "Actualizar reseña" : "Publicar reseña"}</SubmitButton>

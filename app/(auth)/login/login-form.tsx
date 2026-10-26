@@ -1,18 +1,17 @@
 "use client";
 
-import { useActionState } from "react";
 import { FormMessage, SubmitButton, TextField } from "@/components/form-fields";
-import type { FormState } from "@/lib/forms";
+import { useFormAction } from "@/lib/use-form-action";
 import { signIn } from "../actions";
 
 export function LoginForm({ next }: { next: string }) {
-  const [state, action, pending] = useActionState<FormState, FormData>(signIn, {});
+  const [state, action, pending] = useFormAction(signIn, ["email"]);
 
   return (
     <form action={action} className="space-y-4">
       <input type="hidden" name="next" value={next} />
       <FormMessage error={state.error} />
-      <TextField label="Email" name="email" type="email" autoComplete="email" required error={state.fieldErrors?.email} />
+      <TextField label="Email" name="email" type="email" defaultValue={state.values?.email} autoComplete="email" required error={state.fieldErrors?.email} />
       <TextField
         label="Contraseña"
         name="password"
