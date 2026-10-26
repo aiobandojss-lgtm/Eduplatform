@@ -50,7 +50,9 @@ export async function signIn(_prev: FormState, formData: FormData): Promise<Form
     return { error: "Email o contraseña incorrectos." };
   }
 
-  redirect(safeNextPath(formValue(formData, "next")));
+  // Navegacion completa en el cliente (no redirect() del Server Action): el destino
+  // puede encadenar redirecciones que la navegacion interna de Next no completa
+  return { redirectTo: safeNextPath(formValue(formData, "next")) };
 }
 
 export async function signOut(): Promise<void> {

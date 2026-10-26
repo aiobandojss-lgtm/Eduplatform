@@ -35,7 +35,16 @@ export async function enroll(_prev: FormState, formData: FormData): Promise<Form
 
   revalidatePath(`/courses/${slug}`);
   revalidatePath("/my-courses");
-  redirect(`/learn/${courseId}`);
+
+  // Directo a la primera leccion para no encadenar redirecciones tras el Server Action
+  const { data: first } = await supabase
+    .from("lessons")
+    .select("id")
+    .eq("course_id", courseId)
+    .order("position")
+    .limit(1)
+    .maybeSingle();
+  redirect(first ? `/learn/${courseId}/${first.id}` : "/my-courses");
 }
 
 export async function saveReview(_prev: FormState, formData: FormData): Promise<FormState> {

@@ -5,6 +5,8 @@ export type FormState = {
   error?: string;
   success?: string;
   fieldErrors?: Record<string, string | undefined>;
+  // Destino para una navegacion completa del navegador (ver LoginForm)
+  redirectTo?: string;
 };
 
 export function fieldErrorsFrom(error: z.ZodError): Record<string, string | undefined> {
