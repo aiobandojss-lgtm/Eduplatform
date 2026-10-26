@@ -1,5 +1,5 @@
 -- Spec course-enrollment: inscripcion, acceso al contenido y acceso tras despublicar
-insert into _tap(line) select plan(17);
+insert into _tap(line) select plan(20);
 
 create temp table _ids (name text primary key, id uuid) on commit drop;
 grant select, insert on _ids to public;
@@ -106,5 +106,19 @@ insert into _tap(line) select throws_ok(
   format('insert into public.enrollments (user_id, course_id) values (%L, %L)',
          (select id from _ids where name = 'stu2'), (select id from _ids where name = 'pub')),
   '42501', null, 'no se admiten inscripciones nuevas mientras siga en borrador');
+
+-- Regresion: el catalogo debe funcionar para visitantes sin sesion aunque existan inscripciones
+reset role;
+update public.courses set status = 'published' where id = (select id from _ids where name = 'pub');
+select pg_temp.login_anon();
+insert into _tap(line) select lives_ok(
+  $$ select * from public.search_catalog(null, null) $$,
+  'un visitante puede consultar el catalogo (la vista cuenta inscritos)');
+insert into _tap(line) select is(
+  (select enrollments_count from public.catalog_courses where id = (select id from _ids where name = 'pub')), 0,
+  'un visitante no ve el numero real de inscritos');
+insert into _tap(line) select is(
+  (select count(*)::int from public.enrollments), 0,
+  'un visitante no ve ninguna inscripcion');
 
 insert into _tap(line) select * from finish();
