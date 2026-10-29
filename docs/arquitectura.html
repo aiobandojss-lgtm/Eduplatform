@@ -1,0 +1,623 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Arquitectura Academia MKT + IA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@600;700;800&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: plano tecnico de una sola columna ancha; los diagramas mandan y el texto los explica. El acento indigo es el mismo de la app */
+:root {
+  --paper: #f6f7fb;
+  --sheet: #ffffff;
+  --ink: #171a2b;
+  --muted: #5b6078;
+  --rule: #d9dcea;
+  --accent: #4f46e5;
+  --accent-soft: #e8e7fd;
+  --ok: #157a4a;
+  --ok-soft: #dff3e8;
+  --no: #b42318;
+  --no-soft: #fde8e5;
+  --cond: #8a5a00;
+  --cond-soft: #fbf0d9;
+  --code-bg: #eef0f7;
+  --font-display: "Schibsted Grotesk", "Segoe UI", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", Consolas, "Courier New", monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0f111a; --sheet: #161925; --ink: #e6e8f2; --muted: #9ba0b8; --rule: #2a2e40;
+    --accent: #a5b4fc; --accent-soft: #23264a;
+    --ok: #6fd3a0; --ok-soft: #12301f; --no: #f59a8f; --no-soft: #3a1815; --cond: #f0c46a; --cond-soft: #33270c;
+    --code-bg: #1d2131; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0f111a; --sheet: #161925; --ink: #e6e8f2; --muted: #9ba0b8; --rule: #2a2e40;
+  --accent: #a5b4fc; --accent-soft: #23264a;
+  --ok: #6fd3a0; --ok-soft: #12301f; --no: #f59a8f; --no-soft: #3a1815; --cond: #f0c46a; --cond-soft: #33270c;
+  --code-bg: #1d2131; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+a { color: var(--accent); text-underline-offset: 3px; }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
+
+.wrap { max-width: 1080px; margin: 0 auto; padding-block: 2.5rem 4rem; }
+.prose { max-width: 72ch; }
+
+header.top { display: grid; gap: 1rem; padding-bottom: 2rem; border-bottom: 1px solid var(--rule); }
+.kicker { font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin: 0; }
+h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(2.1rem, 5vw, 3.2rem); line-height: 1.05; letter-spacing: -0.02em; margin: 0; text-wrap: balance; }
+.lede { font-size: 1.15rem; color: var(--muted); margin: 0; max-width: 64ch; }
+.stack { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.25rem 0 0; padding: 0; list-style: none; }
+.stack li { font-family: var(--font-mono); font-size: 0.78rem; padding: 0.25rem 0.6rem; border: 1px solid var(--rule); border-radius: 999px; background: var(--sheet); margin: 0; }
+
+nav.jump { display: flex; flex-wrap: wrap; gap: 0.3rem 1.2rem; padding-block: 1rem; border-bottom: 1px solid var(--rule); font-family: var(--font-display); font-weight: 600; font-size: 0.92rem; }
+nav.jump a { color: var(--muted); text-decoration: none; }
+nav.jump a:hover { color: var(--accent); }
+
+section { padding-block: 2.6rem 0.5rem; }
+.eyebrow { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin: 0 0 0.4rem; }
+h2 { font-family: var(--font-display); font-weight: 800; font-size: 1.85rem; line-height: 1.15; letter-spacing: -0.01em; margin: 0 0 0.8rem; text-wrap: balance; }
+h3 { font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; margin: 1.8rem 0 0.5rem; }
+p { margin: 0 0 1rem; }
+ul { padding-left: 1.2rem; margin: 0 0 1rem; }
+li { margin-bottom: 0.3rem; }
+code { font-family: var(--font-mono); font-size: 0.86em; background: var(--code-bg); padding: 0.08em 0.35em; border-radius: 4px; }
+
+/* Diagramas */
+figure { margin: 1.2rem 0 1.6rem; }
+.canvas { background: var(--sheet); border: 1px solid var(--rule); border-radius: 10px; padding: 1rem; overflow-x: auto; }
+.canvas svg { display: block; width: 100%; height: auto; min-width: 760px; }
+figcaption { font-size: 0.9rem; color: var(--muted); margin-top: 0.6rem; max-width: 80ch; }
+svg text { font-family: var(--font-body); }
+svg .frame { fill: none; stroke: var(--rule); stroke-width: 1.5; stroke-dasharray: 5 4; }
+svg .box { fill: var(--paper); stroke: var(--rule); stroke-width: 1.5; }
+svg .box-key { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.8; }
+svg .head { fill: var(--code-bg); stroke: none; }
+svg .head-key { fill: var(--accent); stroke: none; }
+svg .t-frame { fill: var(--muted); font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.04em; }
+svg .t-title { fill: var(--ink); font-family: var(--font-display); font-weight: 700; font-size: 15px; }
+svg .t-title-inv { fill: var(--sheet); font-family: var(--font-mono); font-weight: 600; font-size: 13px; }
+svg .t-name { fill: var(--ink); font-family: var(--font-mono); font-weight: 600; font-size: 13px; }
+svg .t-sub { fill: var(--muted); font-size: 12px; }
+svg .t-row { fill: var(--ink); font-family: var(--font-mono); font-size: 11.5px; }
+svg .t-dim { fill: var(--muted); font-family: var(--font-mono); font-size: 11px; }
+svg .t-label { fill: var(--ink); font-family: var(--font-mono); font-size: 11px; }
+svg .t-accent { fill: var(--accent); font-family: var(--font-mono); font-size: 11.5px; font-weight: 600; }
+svg .t-ok { fill: var(--ok); font-family: var(--font-mono); font-size: 11px; }
+svg .t-no { fill: var(--no); font-family: var(--font-mono); font-size: 11px; }
+svg .wire { stroke: var(--muted); stroke-width: 1.5; fill: none; }
+svg .wire-key { stroke: var(--accent); stroke-width: 2; fill: none; }
+svg .life { stroke: var(--rule); stroke-width: 1.5; stroke-dasharray: 4 4; }
+svg .tip { fill: var(--muted); }
+svg .tip-key { fill: var(--accent); }
+
+/* Matriz de permisos */
+.table-wrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 10px; background: var(--sheet); margin: 1rem 0 1.4rem; }
+table { border-collapse: collapse; width: 100%; font-size: 0.92rem; line-height: 1.4; }
+th, td { text-align: left; padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--rule); vertical-align: top; }
+thead th { font-family: var(--font-display); font-weight: 700; background: var(--code-bg); font-size: 0.86rem; white-space: nowrap; }
+tbody tr:last-child td, tbody tr:last-child th { border-bottom: none; }
+tbody th { font-weight: 600; font-family: var(--font-body); min-width: 14rem; }
+td.how { font-family: var(--font-mono); font-size: 0.78rem; color: var(--muted); min-width: 15rem; }
+.chip { display: inline-block; font-family: var(--font-mono); font-size: 0.75rem; font-weight: 600; padding: 0.12rem 0.5rem; border-radius: 999px; white-space: nowrap; }
+.chip.y { color: var(--ok); background: var(--ok-soft); }
+.chip.n { color: var(--no); background: var(--no-soft); }
+.chip.c { color: var(--cond); background: var(--cond-soft); }
+
+/* Rutas y carpetas */
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+@media (max-width: 760px) { .grid2 { grid-template-columns: minmax(0, 1fr); } }
+.panel { background: var(--sheet); border: 1px solid var(--rule); border-radius: 10px; padding: 1rem 1.1rem; min-width: 0; }
+.panel h3 { margin-top: 0; }
+dl.tree { margin: 0; display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 0.35rem 1rem; font-size: 0.92rem; }
+dl.tree dt { font-family: var(--font-mono); font-size: 0.82rem; color: var(--accent); }
+dl.tree dd { margin: 0; color: var(--ink); }
+@media (max-width: 480px) { dl.tree { grid-template-columns: minmax(0, 1fr); } dl.tree dd { margin-bottom: 0.4rem; } }
+
+/* Migraciones */
+ol.timeline { list-style: none; margin: 1rem 0; padding: 0; display: grid; gap: 0; border-left: 2px solid var(--rule); }
+ol.timeline li { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr); gap: 1rem; padding: 0.45rem 0 0.45rem 1rem; margin: 0; position: relative; font-size: 0.93rem; }
+ol.timeline li::before { content: ""; position: absolute; left: -6px; top: 0.85rem; width: 10px; height: 10px; border-radius: 50%; background: var(--sheet); border: 2px solid var(--muted); }
+ol.timeline li.fix::before { border-color: var(--accent); background: var(--accent); }
+ol.timeline .n { font-family: var(--font-mono); font-size: 0.78rem; color: var(--muted); font-variant-numeric: tabular-nums; padding-top: 0.1rem; }
+@media (max-width: 480px) { ol.timeline li { grid-template-columns: minmax(0, 1fr); gap: 0.1rem; } }
+
+.callout { border-left: 3px solid var(--accent); background: var(--sheet); padding: 0.8rem 1rem; border-radius: 0 8px 8px 0; margin: 1rem 0 1.4rem; }
+.callout > :last-child { margin-bottom: 0; }
+
+.decisions { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; margin-top: 1rem; }
+.decision { background: var(--sheet); border: 1px solid var(--rule); border-radius: 10px; padding: 1rem; min-width: 0; }
+.decision b { font-family: var(--font-mono); color: var(--accent); font-size: 0.8rem; }
+.decision h3 { margin: 0.2rem 0 0.4rem; font-size: 1.02rem; }
+.decision p { margin: 0; font-size: 0.92rem; color: var(--muted); }
+
+footer { margin-top: 3rem; padding-top: 1.2rem; border-top: 1px solid var(--rule); font-size: 0.85rem; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <p class="kicker">Documento de arquitectura · octubre 2026</p>
+  <h1>Arquitectura Academia MKT + IA</h1>
+  <p class="lede">Plataforma de cursos de marketing digital e IA donde el administrador decide quién enseña. Next.js renderiza y ejecuta todo en el servidor; Supabase guarda los datos y hace cumplir cada permiso dentro de Postgres.</p>
+  <ul class="stack" aria-label="Tecnologías">
+    <li>Next.js 15.5 · App Router</li>
+    <li>React 19</li>
+    <li>TypeScript estricto</li>
+    <li>Tailwind 4</li>
+    <li>Zod 4</li>
+    <li>Supabase Auth</li>
+    <li>Postgres + RLS</li>
+    <li>pgTAP · Vitest</li>
+    <li>Node 24</li>
+  </ul>
+</header>
+
+<nav class="jump" aria-label="Secciones">
+  <a href="#sistema">Vista del sistema</a>
+  <a href="#peticion">Una petición por dentro</a>
+  <a href="#datos">Modelo de datos</a>
+  <a href="#permisos">Matriz de permisos</a>
+  <a href="#codigo">Rutas y código</a>
+  <a href="#base">Base de datos</a>
+  <a href="#calidad">Pruebas y entorno</a>
+  <a href="#decisiones">Decisiones clave</a>
+</nav>
+
+<!-- ================= Sistema ================= -->
+<section id="sistema">
+  <p class="eyebrow">Contenedores</p>
+  <h2>Vista del sistema</h2>
+  <div class="prose">
+    <p>Hay tres piezas: el navegador, el servidor de Next.js y el proyecto de Supabase. El navegador <strong>nunca habla directamente con Supabase</strong>: todas las lecturas y escrituras pasan por Server Components y Server Actions, que consultan con la sesión del usuario. Por eso RLS siempre sabe quién pregunta.</p>
+  </div>
+  <figure>
+    <div class="canvas">
+      <svg viewBox="0 0 980 400" role="img" aria-label="El navegador habla con Next.js; Next.js consulta Supabase con el JWT del usuario; Postgres aplica GRANT, RLS y triggers">
+        <defs>
+          <marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="tip"/></marker>
+          <marker id="a1k" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="tip-key"/></marker>
+        </defs>
+
+        <!-- Navegador -->
+        <rect x="10" y="150" width="130" height="100" rx="8" class="box"/>
+        <text x="75" y="186" text-anchor="middle" class="t-title">Navegador</text>
+        <text x="75" y="208" text-anchor="middle" class="t-sub">formularios React</text>
+        <text x="75" y="226" text-anchor="middle" class="t-sub">useActionState</text>
+
+        <!-- Next.js -->
+        <rect x="190" y="20" width="370" height="360" rx="12" class="frame"/>
+        <text x="206" y="44" class="t-frame">NEXT.JS · SERVIDOR</text>
+        <rect x="208" y="60" width="334" height="70" rx="8" class="box"/>
+        <text x="224" y="88" class="t-name">middleware.ts</text>
+        <text x="224" y="110" class="t-sub">refresca la sesión · exige rol por ruta</text>
+
+        <rect x="208" y="146" width="160" height="96" rx="8" class="box"/>
+        <text x="224" y="174" class="t-title">Server</text>
+        <text x="224" y="192" class="t-title">Components</text>
+        <text x="224" y="216" class="t-sub">páginas que leen</text>
+
+        <rect x="382" y="146" width="160" height="96" rx="8" class="box"/>
+        <text x="398" y="174" class="t-title">Server</text>
+        <text x="398" y="192" class="t-title">Actions</text>
+        <text x="398" y="216" class="t-sub">escrituras + Zod</text>
+
+        <rect x="208" y="258" width="334" height="104" rx="8" class="box"/>
+        <text x="224" y="286" class="t-name">lib/supabase/server.ts</text>
+        <text x="224" y="308" class="t-sub">createClient(): anon key + cookies</text>
+        <text x="224" y="326" class="t-sub">del usuario, sin service_role</text>
+        <text x="224" y="348" class="t-accent">→ RLS aplica en cada consulta</text>
+
+        <line x1="288" y1="242" x2="288" y2="254" class="wire" marker-end="url(#a1)"/>
+        <line x1="462" y1="242" x2="462" y2="254" class="wire" marker-end="url(#a1)"/>
+
+        <!-- Supabase -->
+        <rect x="650" y="20" width="320" height="360" rx="12" class="frame"/>
+        <text x="666" y="44" class="t-frame">SUPABASE · PROYECTO DATAPAH</text>
+        <rect x="668" y="60" width="284" height="60" rx="8" class="box"/>
+        <text x="684" y="86" class="t-title">Auth</text>
+        <text x="684" y="106" class="t-sub">usuarios, contraseñas, JWT</text>
+
+        <rect x="668" y="136" width="284" height="60" rx="8" class="box"/>
+        <text x="684" y="162" class="t-title">API REST (PostgREST)</text>
+        <text x="684" y="182" class="t-sub">expone public, nunca private</text>
+
+        <rect x="668" y="212" width="284" height="150" rx="8" class="box-key"/>
+        <text x="684" y="238" class="t-title">Postgres</text>
+        <text x="684" y="262" class="t-row">1  GRANT: ¿puede tocar la tabla?</text>
+        <text x="684" y="284" class="t-row">2  RLS: ¿qué filas le tocan?</text>
+        <text x="684" y="306" class="t-row">3  CHECK, UNIQUE y triggers</text>
+        <text x="684" y="334" class="t-dim">esquema private: helpers</text>
+        <text x="684" y="350" class="t-dim">SECURITY DEFINER</text>
+
+        <line x1="810" y1="196" x2="810" y2="208" class="wire" marker-end="url(#a1)"/>
+
+        <!-- Conexiones -->
+        <line x1="140" y1="200" x2="186" y2="200" class="wire" marker-end="url(#a1)"/>
+        <text x="163" y="192" text-anchor="middle" class="t-label">HTTP</text>
+        <line x1="542" y1="92" x2="664" y2="92" class="wire" marker-end="url(#a1)"/>
+        <text x="603" y="84" text-anchor="middle" class="t-label">getUser()</text>
+        <path d="M542,310 C605,310 600,166 664,166" class="wire-key" marker-end="url(#a1k)"/>
+        <text x="600" y="342" text-anchor="middle" class="t-accent">con JWT</text>
+      </svg>
+    </div>
+    <figcaption>El middleware valida sesión y rol para dar buena experiencia, pero la decisión final la toma Postgres. Aunque alguien se salte la app y llame la API con la anon key, se encuentra con las mismas tres capas.</figcaption>
+  </figure>
+</section>
+
+<!-- ================= Peticion ================= -->
+<section id="peticion">
+  <p class="eyebrow">Secuencia</p>
+  <h2>Una petición por dentro: "Inscribirme"</h2>
+  <div class="prose">
+    <p>El botón de inscripción es el mejor ejemplo de cómo se reparte el trabajo. El Server Action casi no valida reglas de negocio: inserta y deja que la base decida. Así la regla vive en un solo sitio y nadie puede saltársela.</p>
+  </div>
+  <figure>
+    <div class="canvas">
+      <svg viewBox="0 0 900 470" role="img" aria-label="Secuencia de inscripción: el Server Action inserta en enrollments y Postgres aplica GRANT, RLS y UNIQUE antes de responder">
+        <defs>
+          <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="tip"/></marker>
+          <marker id="a2k" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="tip-key"/></marker>
+        </defs>
+        <!-- Cabeceras -->
+        <rect x="20" y="16" width="140" height="44" rx="8" class="box"/>
+        <text x="90" y="44" text-anchor="middle" class="t-title">Navegador</text>
+        <rect x="250" y="16" width="160" height="44" rx="8" class="box"/>
+        <text x="330" y="44" text-anchor="middle" class="t-name">enroll()</text>
+        <rect x="490" y="16" width="140" height="44" rx="8" class="box"/>
+        <text x="560" y="44" text-anchor="middle" class="t-title">Auth</text>
+        <rect x="700" y="16" width="180" height="44" rx="8" class="box-key"/>
+        <text x="790" y="44" text-anchor="middle" class="t-title">Postgres</text>
+
+        <line x1="90" y1="60" x2="90" y2="455" class="life"/>
+        <line x1="330" y1="60" x2="330" y2="455" class="life"/>
+        <line x1="560" y1="60" x2="560" y2="455" class="life"/>
+        <line x1="790" y1="60" x2="790" y2="455" class="life"/>
+
+        <!-- 1 -->
+        <line x1="90" y1="96" x2="326" y2="96" class="wire" marker-end="url(#a2)"/>
+        <text x="210" y="88" text-anchor="middle" class="t-label">submit: courseId, slug</text>
+        <!-- 2 -->
+        <line x1="330" y1="132" x2="556" y2="132" class="wire" marker-end="url(#a2)"/>
+        <text x="445" y="124" text-anchor="middle" class="t-label">getUser()</text>
+        <line x1="560" y1="156" x2="334" y2="156" class="wire" marker-end="url(#a2)"/>
+        <text x="445" y="150" text-anchor="middle" class="t-dim">usuario o redirect /login?next=</text>
+        <!-- 3 -->
+        <line x1="330" y1="196" x2="786" y2="196" class="wire-key" marker-end="url(#a2k)"/>
+        <text x="560" y="188" text-anchor="middle" class="t-accent">insert into enrollments (user_id, course_id)</text>
+        <!-- 4: comprobaciones -->
+        <rect x="660" y="210" width="230" height="104" rx="8" class="box"/>
+        <text x="674" y="232" class="t-row">GRANT insert a authenticated</text>
+        <text x="674" y="254" class="t-row">RLS: user_id = auth.uid()</text>
+        <text x="674" y="272" class="t-row">  y can_enroll(course_id)</text>
+        <text x="674" y="294" class="t-row">UNIQUE (user_id, course_id)</text>
+        <!-- 5 -->
+        <line x1="790" y1="340" x2="334" y2="340" class="wire" marker-end="url(#a2)"/>
+        <text x="560" y="332" text-anchor="middle" class="t-label">ok · 42501 rechazo · 23505 ya inscrito = éxito</text>
+        <!-- 6 -->
+        <line x1="330" y1="380" x2="786" y2="380" class="wire" marker-end="url(#a2)"/>
+        <text x="560" y="372" text-anchor="middle" class="t-label">select primera lección (order by position)</text>
+        <!-- 7 -->
+        <line x1="330" y1="424" x2="94" y2="424" class="wire" marker-end="url(#a2)"/>
+        <text x="210" y="416" text-anchor="middle" class="t-label">redirect /learn/{curso}/{lección}</text>
+      </svg>
+    </div>
+    <figcaption><code>can_enroll</code> comprueba que el curso esté publicado, que su instructor siga activo y que no sea tuyo. El código <code>23505</code> (ya inscrito) se trata como éxito para que el botón sea idempotente. Redirigir directo a la primera lección evita encadenar redirecciones, que dejaban la página en blanco.</figcaption>
+  </figure>
+</section>
+
+<!-- ================= Datos ================= -->
+<section id="datos">
+  <p class="eyebrow">Esquema public</p>
+  <h2>Modelo de datos</h2>
+  <div class="prose">
+    <p>Siete tablas propias más <code>auth.users</code> de Supabase. La separación más importante es <code>lessons</code> frente a <code>lesson_contents</code>: RLS filtra filas, no columnas, así que el título (temario público) y el contenido (solo inscritos) viven en tablas distintas con políticas distintas.</p>
+  </div>
+  <figure>
+    <div class="canvas">
+      <svg viewBox="0 0 980 520" role="img" aria-label="Diagrama entidad relación: profiles, categories, courses, lessons, lesson_contents, enrollments y reviews">
+        <defs>
+          <marker id="a3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="tip"/></marker>
+        </defs>
+        <!-- auth.users -->
+        <rect x="20" y="30" width="210" height="82" rx="8" class="box"/>
+        <rect x="20" y="30" width="210" height="30" rx="8" class="head"/>
+        <text x="34" y="50" class="t-name">auth.users</text>
+        <text x="34" y="80" class="t-row">id · email</text>
+        <text x="34" y="100" class="t-dim">gestionada por Supabase</text>
+
+        <!-- profiles -->
+        <rect x="20" y="190" width="210" height="122" rx="8" class="box"/>
+        <rect x="20" y="190" width="210" height="30" rx="8" class="head"/>
+        <text x="34" y="210" class="t-name">profiles</text>
+        <text x="34" y="240" class="t-row">id PK → auth.users</text>
+        <text x="34" y="260" class="t-row">display_name · bio</text>
+        <text x="34" y="280" class="t-row">role  user_role</text>
+        <text x="34" y="300" class="t-dim">rol no editable por API</text>
+
+        <line x1="125" y1="190" x2="125" y2="116" class="wire" marker-end="url(#a3)"/>
+        <text x="135" y="146" class="t-label">1 : 1</text>
+        <text x="135" y="162" class="t-dim">trigger → student</text>
+
+        <!-- categories -->
+        <rect x="380" y="30" width="220" height="82" rx="8" class="box"/>
+        <rect x="380" y="30" width="220" height="30" rx="8" class="head"/>
+        <text x="394" y="50" class="t-name">categories</text>
+        <text x="394" y="80" class="t-row">id · slug · name</text>
+        <text x="394" y="100" class="t-dim">7 filas, solo por migración</text>
+
+        <!-- courses -->
+        <rect x="360" y="190" width="260" height="162" rx="8" class="box"/>
+        <rect x="360" y="190" width="260" height="30" rx="8" class="head"/>
+        <text x="374" y="210" class="t-name">courses</text>
+        <text x="374" y="240" class="t-row">id PK</text>
+        <text x="374" y="260" class="t-row">instructor_id → profiles</text>
+        <text x="374" y="280" class="t-row">category_id → categories</text>
+        <text x="374" y="300" class="t-row">slug UNIQUE</text>
+        <text x="374" y="320" class="t-row">status draft | published</text>
+        <text x="374" y="340" class="t-row">published_at · updated_at</text>
+
+        <line x1="490" y1="190" x2="490" y2="116" class="wire" marker-end="url(#a3)"/>
+        <text x="500" y="154" class="t-label">N : 1</text>
+        <line x1="360" y1="260" x2="234" y2="260" class="wire" marker-end="url(#a3)"/>
+        <text x="297" y="252" text-anchor="middle" class="t-label">N : 1</text>
+
+        <!-- lessons -->
+        <rect x="720" y="190" width="240" height="122" rx="8" class="box"/>
+        <rect x="720" y="190" width="240" height="30" rx="8" class="head"/>
+        <text x="734" y="210" class="t-name">lessons</text>
+        <text x="734" y="240" class="t-row">id PK</text>
+        <text x="734" y="260" class="t-row">course_id → courses</text>
+        <text x="734" y="280" class="t-row">title  (temario público)</text>
+        <text x="734" y="300" class="t-row">position UNIQUE diferible</text>
+
+        <line x1="720" y1="250" x2="624" y2="250" class="wire" marker-end="url(#a3)"/>
+        <text x="672" y="242" text-anchor="middle" class="t-label">N : 1</text>
+
+        <!-- lesson_contents -->
+        <rect x="720" y="380" width="240" height="102" rx="8" class="box-key"/>
+        <rect x="720" y="380" width="240" height="30" rx="8" class="head-key"/>
+        <text x="734" y="400" class="t-title-inv">lesson_contents · privada</text>
+        <text x="734" y="430" class="t-row">lesson_id PK → lessons</text>
+        <text x="734" y="450" class="t-row">body_markdown</text>
+        <text x="734" y="470" class="t-row">video_url  YouTube | Vimeo</text>
+
+        <line x1="840" y1="380" x2="840" y2="316" class="wire" marker-end="url(#a3)"/>
+        <text x="850" y="350" class="t-label">1 : 1</text>
+
+        <!-- enrollments -->
+        <rect x="110" y="400" width="230" height="102" rx="8" class="box"/>
+        <rect x="110" y="400" width="230" height="30" rx="8" class="head"/>
+        <text x="124" y="420" class="t-name">enrollments</text>
+        <text x="124" y="450" class="t-row">user_id → profiles</text>
+        <text x="124" y="470" class="t-row">course_id → courses RESTRICT</text>
+        <text x="124" y="490" class="t-row">UNIQUE (user, course)</text>
+
+        <line x1="180" y1="400" x2="180" y2="316" class="wire" marker-end="url(#a3)"/>
+        <path d="M300,400 C300,372 420,380 420,356" class="wire" marker-end="url(#a3)"/>
+
+        <!-- reviews -->
+        <rect x="430" y="400" width="240" height="102" rx="8" class="box"/>
+        <rect x="430" y="400" width="240" height="30" rx="8" class="head"/>
+        <text x="444" y="420" class="t-name">reviews</text>
+        <text x="444" y="450" class="t-row">course_id · user_id UNIQUE</text>
+        <text x="444" y="470" class="t-row">rating 1–5</text>
+        <text x="444" y="490" class="t-row">comment ≤ 2000</text>
+
+        <line x1="560" y1="400" x2="560" y2="356" class="wire" marker-end="url(#a3)"/>
+      </svg>
+    </div>
+    <figcaption>Las flechas apuntan a la tabla referenciada. <code>lesson_contents</code> (resaltada) es la única tabla que solo leen el dueño del curso y sus inscritos. La vista <code>catalog_courses</code> (con <code>security_invoker</code>) une cursos, instructor, categoría, promedio de reseñas e inscritos, y la usan el catálogo, la ficha y el panel del instructor.</figcaption>
+  </figure>
+</section>
+
+<!-- ================= Permisos ================= -->
+<section id="permisos">
+  <p class="eyebrow">Autorización</p>
+  <h2>Matriz de permisos</h2>
+  <div class="prose">
+    <p>Quién puede hacer qué, y en qué parte de la base se hace cumplir. Un instructor es también estudiante: puede inscribirse y reseñar cursos ajenos. El admin no tiene acceso especial al contenido: su poder es decidir quién enseña.</p>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th scope="col">Acción</th><th scope="col">Visitante</th><th scope="col">Estudiante</th><th scope="col">Instructor</th><th scope="col">Admin</th><th scope="col">Dónde se cumple</th></tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row">Ver catálogo, ficha y temario de cursos publicados</th>
+          <td><span class="chip y">sí</span></td><td><span class="chip y">sí</span></td><td><span class="chip y">sí</span></td><td><span class="chip y">sí</span></td>
+          <td class="how">RLS courses_select_visible · lessons</td></tr>
+        <tr><th scope="row">Leer el contenido de una lección</th>
+          <td><span class="chip n">no</span></td><td><span class="chip c">si está inscrito</span></td><td><span class="chip c">dueño o inscrito</span></td><td><span class="chip c">si está inscrito</span></td>
+          <td class="how">RLS lesson_contents: owns_course o is_enrolled</td></tr>
+        <tr><th scope="row">Inscribirse en un curso</th>
+          <td><span class="chip n">no</span></td><td><span class="chip y">sí</span></td><td><span class="chip c">solo ajenos</span></td><td><span class="chip y">sí</span></td>
+          <td class="how">RLS with check + can_enroll · UNIQUE</td></tr>
+        <tr><th scope="row">Escribir, editar y borrar su reseña</th>
+          <td><span class="chip n">no</span></td><td><span class="chip c">si está inscrito</span></td><td><span class="chip c">inscrito, no dueño</span></td><td><span class="chip c">si está inscrito</span></td>
+          <td class="how">RLS reviews · GRANT update (rating, comment)</td></tr>
+        <tr><th scope="row">Crear y editar cursos y lecciones</th>
+          <td><span class="chip n">no</span></td><td><span class="chip n">no</span></td><td><span class="chip c">solo los propios</span></td><td><span class="chip n">no</span></td>
+          <td class="how">RLS is_instructor() y dueño</td></tr>
+        <tr><th scope="row">Publicar un curso</th>
+          <td><span class="chip n">no</span></td><td><span class="chip n">no</span></td><td><span class="chip c">propio, con 1+ lección</span></td><td><span class="chip n">no</span></td>
+          <td class="how">trigger courses_guard_publication (CP001)</td></tr>
+        <tr><th scope="row">Borrar un curso</th>
+          <td><span class="chip n">no</span></td><td><span class="chip n">no</span></td><td><span class="chip c">propio, sin inscritos</span></td><td><span class="chip n">no</span></td>
+          <td class="how">FK enrollments ON DELETE RESTRICT</td></tr>
+        <tr><th scope="row">Otorgar o quitar el rol instructor</th>
+          <td><span class="chip n">no</span></td><td><span class="chip n">no</span></td><td><span class="chip n">no</span></td><td><span class="chip y">sí</span></td>
+          <td class="how">RPC set_instructor_role verifica is_admin()</td></tr>
+        <tr><th scope="row">Cambiar su propio rol</th>
+          <td><span class="chip n">no</span></td><td><span class="chip n">no</span></td><td><span class="chip n">no</span></td><td><span class="chip n">no</span></td>
+          <td class="how">GRANT update solo (display_name, bio)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout prose">
+    <p>Cuando un admin degrada a un instructor, sus cursos desaparecen del catálogo en la siguiente navegación: la política de cursos exige <code>is_active_instructor</code> y el middleware lee el rol de la base en cada request, no del token.</p>
+  </div>
+</section>
+
+<!-- ================= Codigo ================= -->
+<section id="codigo">
+  <p class="eyebrow">Next.js</p>
+  <h2>Rutas y código</h2>
+  <div class="grid2">
+    <div class="panel">
+      <h3>Rutas</h3>
+      <dl class="tree">
+        <dt>/</dt><dd>Catálogo: búsqueda, filtro por categoría, 12 por página (RPC search_catalog)</dd>
+        <dt>/courses/[slug]</dt><dd>Ficha: temario, instructor, reseñas, inscribirse</dd>
+        <dt>/login · /register</dt><dd>Acceso con email y contraseña</dd>
+        <dt>/learn/[curso]/[lección]</dt><dd>Visor con temario lateral y video. Requiere sesión</dd>
+        <dt>/my-courses</dt><dd>Cursos inscritos. Requiere sesión</dd>
+        <dt>/profile</dt><dd>Nombre y biografía. Requiere sesión</dd>
+        <dt>/instructor/…</dt><dd>Panel, editor de cursos y lecciones. Solo instructor</dd>
+        <dt>/admin/users</dt><dd>Buscar usuarios y asignar instructores. Solo admin</dd>
+      </dl>
+    </div>
+    <div class="panel">
+      <h3>Carpetas</h3>
+      <dl class="tree">
+        <dt>app/</dt><dd>Páginas (Server Components) y <code>actions.ts</code> por sección</dd>
+        <dt>components/</dt><dd>Piezas compartidas: cabecera, tarjeta de curso, botones de acción</dd>
+        <dt>lib/supabase/</dt><dd>Clientes server y middleware, tipos generados de la base</dd>
+        <dt>lib/validation/</dt><dd>Esquemas Zod de auth, curso y reseña</dd>
+        <dt>lib/</dt><dd>auth, reglas de rutas, slug, video, errores de BD, formularios</dd>
+        <dt>middleware.ts</dt><dd>Sesión y acceso por rol (solo experiencia de usuario)</dd>
+        <dt>supabase/migrations/</dt><dd>14 migraciones SQL versionadas</dd>
+        <dt>supabase/tests/</dt><dd>7 archivos pgTAP + helpers</dd>
+        <dt>openspec/</dt><dd>Specs vigentes y cambios archivados</dd>
+      </dl>
+    </div>
+  </div>
+  <h3>Patrones que se repiten</h3>
+  <ul class="prose">
+    <li><strong>Formularios:</strong> Server Action + <code>useActionState</code> + Zod en el servidor. El hook <code>useFormAction</code> conserva lo escrito cuando la validación falla (React 19 reinicia el formulario).</li>
+    <li><strong>Errores de base de datos:</strong> <code>lib/db-errors.ts</code> traduce códigos (<code>42501</code>, <code>23505</code>, y los propios <code>CP001</code> a <code>CP003</code>) a mensajes legibles.</li>
+    <li><strong>Contenido de lecciones:</strong> <code>react-markdown</code> sin HTML crudo, para evitar XSS.</li>
+    <li><strong>Login y logout:</strong> navegación completa con <code>window.location.assign</code> para que la siguiente página llegue con las cookies correctas.</li>
+  </ul>
+</section>
+
+<!-- ================= Base ================= -->
+<section id="base">
+  <p class="eyebrow">Supabase</p>
+  <h2>Base de datos</h2>
+  <div class="grid2">
+    <div class="panel">
+      <h3>Funciones expuestas (public)</h3>
+      <dl class="tree">
+        <dt>search_catalog</dt><dd>Búsqueda ILIKE en título y descripción, con filtro de categoría</dd>
+        <dt>set_instructor_role</dt><dd>Solo admin: alterna student ↔ instructor</dd>
+        <dt>admin_list_users</dt><dd>Solo admin: lista usuarios con su email</dd>
+        <dt>reorder_lessons</dt><dd>Reordena lecciones de forma atómica (CP003)</dd>
+      </dl>
+    </div>
+    <div class="panel">
+      <h3>Helpers internos (private)</h3>
+      <dl class="tree">
+        <dt>is_admin · is_instructor</dt><dd>Rol del usuario actual</dd>
+        <dt>is_active_instructor</dt><dd>Oculta cursos de instructores degradados</dd>
+        <dt>owns_course · is_enrolled</dt><dd>Base de casi todas las políticas</dd>
+        <dt>can_view_course · can_enroll</dt><dd>Visibilidad e inscripción</dd>
+        <dt>guards y touch</dt><dd>Triggers de publicación (CP001), última lección (CP002), posición y updated_at</dd>
+      </dl>
+    </div>
+  </div>
+  <p class="prose" style="margin-top:1rem">Todas las funciones con <code>SECURITY DEFINER</code> llevan <code>set search_path = ''</code> y nombres calificados por esquema. El esquema <code>private</code> no lo expone la API.</p>
+
+  <h3>Migraciones</h3>
+  <ol class="timeline">
+    <li><span class="n">0100</span><span>Perfiles, enum de roles, trigger que fuerza <code>student</code>, GRANT por columna</span></li>
+    <li><span class="n">0200</span><span>Helpers de autorización y políticas de perfiles</span></li>
+    <li><span class="n">0300</span><span>RPC <code>set_instructor_role</code></span></li>
+    <li><span class="n">0400</span><span>Categorías con sus 7 filas</span></li>
+    <li><span class="n">0500</span><span>Cursos y política de visibilidad</span></li>
+    <li><span class="n">0600</span><span>Lecciones y contenidos separados, CHECK de URL de video</span></li>
+    <li><span class="n">0700</span><span>Reseñas, vista <code>catalog_courses</code>, <code>search_catalog</code></span></li>
+    <li class="fix"><span class="n">0800</span><span>Helpers movidos al esquema <code>private</code> (hallazgo del Security Advisor)</span></li>
+    <li><span class="n">0900</span><span>Políticas de escritura de cursos y lecciones</span></li>
+    <li><span class="n">1000</span><span>Reglas de publicación y <code>reorder_lessons</code></span></li>
+    <li><span class="n">1100</span><span>Inscripciones y rama de inscritos en las políticas</span></li>
+    <li><span class="n">1200</span><span>Políticas de reseñas</span></li>
+    <li><span class="n">1300</span><span>RPC <code>admin_list_users</code></span></li>
+    <li class="fix"><span class="n">25·0100</span><span>GRANT select de <code>enrollments</code> a anon: el catálogo fallaba para visitantes</span></li>
+  </ol>
+  <p class="prose">Los puntos rellenos son correcciones. Una migración aplicada nunca se edita: cada corrección es una migración nueva.</p>
+</section>
+
+<!-- ================= Calidad ================= -->
+<section id="calidad">
+  <p class="eyebrow">Verificación</p>
+  <h2>Pruebas y entorno</h2>
+  <div class="grid2">
+    <div class="panel">
+      <h3>Pruebas</h3>
+      <dl class="tree">
+        <dt>npm run test:db</dt><dd>107 aserciones pgTAP. Simulan cada rol con <code>login_as</code> y <code>login_anon</code></dd>
+        <dt>npm test</dt><dd>43 pruebas Vitest de esquemas y utilidades</dd>
+        <dt>lint · tsc · build</dt><dd>Estáticas, en cada grupo de tareas</dd>
+        <dt>advisors</dt><dd>Security Advisor de Supabase sin hallazgos propios</dd>
+      </dl>
+    </div>
+    <div class="panel">
+      <h3>Entorno</h3>
+      <dl class="tree">
+        <dt>Node 24</dt><dd>Solo para este proyecto, con fnm y <code>.node-version</code></dd>
+        <dt>Supabase remoto</dt><dd>Proyecto de desarrollo vinculado; sin Docker</dd>
+        <dt>Runner propio</dt><dd>Cada prueba corre en <code>begin … rollback</code>: no deja datos</dd>
+        <dt>Tipos</dt><dd><code>npm run db:types</code> regenera los tipos TypeScript desde la base</dd>
+        <dt>Secretos</dt><dd>Solo anon key en <code>.env.local</code>; la service_role no se usa</dd>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<!-- ================= Decisiones ================= -->
+<section id="decisiones">
+  <p class="eyebrow">design.md</p>
+  <h2>Decisiones clave</h2>
+  <div class="decisions">
+    <div class="decision"><b>D1</b><h3>Sin backend propio</h3><p>Server Components y Server Actions. Supabase ya es la API y la autorización vive en RLS; un Express aparte sería una capa más sin valor.</p></div>
+    <div class="decision"><b>D2</b><h3>Un rol por usuario en profiles</h3><p>No en el JWT: un cambio de rol debe aplicar en la siguiente navegación, no cuando se refresque el token.</p></div>
+    <div class="decision"><b>D3</b><h3>El rol solo cambia por RPC</h3><p>Dos defensas independientes: GRANT por columna y una función que verifica que quien llama sea admin.</p></div>
+    <div class="decision"><b>D5</b><h3>Lecciones y contenido separados</h3><p>RLS protege filas, no columnas. Dos tablas permiten temario público y contenido privado.</p></div>
+    <div class="decision"><b>D7</b><h3>Reglas en la base</h3><p>UNIQUE, CHECK, FK y triggers. Si una regla vive solo en la app, cualquiera se la salta llamando a la API.</p></div>
+    <div class="decision"><b>D8</b><h3>Promedio con vista</h3><p><code>catalog_courses</code> calcula promedio y conteos al consultar: siempre consistente, sin sincronizar columnas.</p></div>
+    <div class="decision"><b>D12</b><h3>pgTAP sin Docker</h3><p>Runner propio contra la base remota. Las pruebas son compatibles con <code>supabase test db</code> si algún día hay Docker.</p></div>
+  </div>
+  <div class="callout prose">
+    <p><strong>Fuera de esta versión:</strong> pagos, video propio, progreso por lección, certificados y búsqueda por nombre de categoría. Todo el detalle está en <code>openspec/changes/archive/2026-10-26-create-course-platform/design.md</code>.</p>
+  </div>
+</section>
+
+<footer>
+  Arquitectura Academia MKT + IA · generado a partir del código del repositorio (commit 65ac6d5) · las specs vigentes están en <code>openspec/specs/</code>
+</footer>
+
+</div>
+</body>
+</html>
